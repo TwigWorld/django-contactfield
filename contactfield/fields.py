@@ -1,6 +1,6 @@
 import simplejson as json
 
-from jsonfield import JSONField
+from jsonfield.fields import JSONField, JSONFormField
 
 from django import forms
 from django.core.exceptions import ImproperlyConfigured
@@ -40,7 +40,7 @@ class _ContactFieldFormField(forms.Field):
         return contact_groups
 
 
-class ContactField(JSONField):
+class BaseContactField(JSONField):
     """
     A contact field allows contact information to be stored using a relatively
     loose ruleset in order to allow for many different contexts to be supported
@@ -123,7 +123,7 @@ class ContactField(JSONField):
         *args,
         **kwargs
     ):
-        super(ContactField, self).__init__(*args, **kwargs)
+        super(BaseContactField, self).__init__(*args, **kwargs)
 
         if 'default' in kwargs and not isinstance(kwargs['default'], dict):
             raise ImproperlyConfigured("Contact field default must be a dictionary.")
@@ -146,16 +146,16 @@ class ContactField(JSONField):
             if exclude_labels is not None:
                 self.valid_labels = list(set(self.valid_labels) - set(exclude_labels))
 
+
+class ContactFormField(BaseContactField, JSONFormField):
+    pass
+
+
+class ContactField(BaseContactField):
+
     def formfield(self, **kwargs):
         class ContactFieldFormField(_ContactFieldFormField):
             model_field = self
         defaults = {'form_class': ContactFieldFormField}
         defaults.update(kwargs)
-        return super(ContactField, self).formfield(**defaults)
-
-
-try:
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules([], ["^contactfield\.fields\.(ContactField)"])
-except ImportError:
-    pass
+        return super(BaseContactField, self).formfield(**defaults)

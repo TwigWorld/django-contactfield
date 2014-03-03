@@ -5,7 +5,7 @@ from django import forms
 from fields import _ContactFieldFormField
 
 
-class ContactFieldFormMixin(forms.ModelForm):
+class ContactFieldFormMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ContactFieldFormMixin, self).__init__(*args, **kwargs)
