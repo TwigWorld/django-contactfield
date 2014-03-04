@@ -154,23 +154,27 @@ class BaseContactField(object):
 class ContactFormField(BaseContactField, JSONFormField):
 
     def __init__(self, *args, **kwargs):
-        super(ContactFormField, self).__init__(*args, **kwargs)
         if not 'initial' in kwargs:
             kwargs['initial'] = {}
+        if not 'widget' in kwargs:
+            kwargs['widget'] = forms.HiddenInput
+        super(ContactFormField, self).__init__(*args, **kwargs)
 
 
 class ContactField(BaseContactField, JSONField):
 
     def __init__(self, *args, **kwargs):
-        super(ContactField, self).__init__(*args, **kwargs)
         if not 'default' in kwargs:
             kwargs['default'] = {}
+        super(ContactField, self).__init__(*args, **kwargs)
+
 
     def formfield(self, **kwargs):
         defaults = {
             'form_class': ContactFormField,
             'valid_groups': self.valid_groups,
-            'valid_labels': self.valid_labels
+            'valid_labels': self.valid_labels,
+            'widget': forms.HiddenInput
         }
         defaults.update(kwargs)
         return super(ContactField, self).formfield(**defaults)
