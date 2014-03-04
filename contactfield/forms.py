@@ -2,7 +2,7 @@ from functools import partial
 
 from django import forms
 
-from fields import _ContactFieldFormField
+from fields import ContactFormField
 
 
 class ContactFieldFormMixin(object):
@@ -13,19 +13,17 @@ class ContactFieldFormMixin(object):
         # Find all the contact fields, and create dynamic fields
         self._contact_fields = {}
         for field_name, field in filter(
-            lambda field: isinstance(field[1], _ContactFieldFormField),
+            lambda field: isinstance(field[1], ContactFormField),
             self.fields.iteritems()
         ):
-            field.hidden = True
             self._contact_fields[field_name] = {
-                'model_field': field.model_field,
                 'pseudo_fields': {}
             }
-            for valid_group in field.model_field.valid_groups:
-                for valid_label in field.model_field.valid_labels:
+            for valid_group in field.valid_groups:
+                for valid_label in field.valid_labels:
                     pseudo_field_name = '%s__%s__%s' % (field_name, valid_group, valid_label)
-                    if getattr(self.instance, field_name, None):
-                        initial = getattr(self.instance, field_name).get(valid_group, {}).get(valid_label)
+                    if self[field_name].value() is not None:
+                        initial = self[field_name].field.to_python(self[field_name].value()).get(valid_group, {}).get(valid_label)
                     else:
                         initial = None
                     charfield = forms.CharField(required=False, initial=initial)
@@ -38,7 +36,18 @@ class ContactFieldFormMixin(object):
         return super(ContactFieldFormMixin, self).__getattribute__(name, *args, **kwargs)
 
     def _clean_CONTACTFIELD(self, contact_field_name):
-        cleaned_data = {}
+
+        if self[contact_field_name].value():
+            cleaned_data = self[contact_field_name].field.to_python(
+                self[contact_field_name].value()
+            )
+        elif self.fields[contact_field_name].initial:
+            cleaned_data = self[contact_field_name].field.to_python(
+                self.fields[contact_field_name].initial
+            )
+        else:
+            cleaned_data = {}
+
         for pseudo_field_name, field in self._contact_fields[contact_field_name]['pseudo_fields'].iteritems():
             pseudo_field_value = self.data.get(pseudo_field_name)
             if pseudo_field_value:

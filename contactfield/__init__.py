@@ -1,4 +1,5 @@
 from fields import ContactField, ContactFormField
+from forms import ContactFieldFormMixin
 
 try:
     from south.modelsinspector import add_introspection_rules
