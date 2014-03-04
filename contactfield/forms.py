@@ -2,7 +2,7 @@ from functools import partial
 
 from django import forms
 
-from fields import ContactFormField
+from fields import ContactFormField, contact_field_as_dict
 
 
 class ContactFieldFormMixin(object):
@@ -23,7 +23,7 @@ class ContactFieldFormMixin(object):
                 for valid_label in field.valid_labels:
                     pseudo_field_name = '%s__%s__%s' % (field_name, valid_group, valid_label)
                     if self[field_name].value() is not None:
-                        initial = self[field_name].field.to_python(self[field_name].value()).get(valid_group, {}).get(valid_label)
+                        initial = contact_field_as_dict(self[field_name].value()).get(valid_group, {}).get(valid_label)
                     else:
                         initial = None
                     charfield = forms.CharField(required=False, initial=initial)
@@ -38,13 +38,9 @@ class ContactFieldFormMixin(object):
     def _clean_CONTACTFIELD(self, contact_field_name):
 
         if self[contact_field_name].value():
-            cleaned_data = self[contact_field_name].field.to_python(
-                self[contact_field_name].value()
-            )
+            cleaned_data = contact_field_as_dict(self[contact_field_name].value())
         elif self.fields[contact_field_name].initial:
-            cleaned_data = self[contact_field_name].field.to_python(
-                self.fields[contact_field_name].initial
-            )
+            cleaned_data = contact_field_as_dict(self.fields[contact_field_name].initial)
         else:
             cleaned_data = {}
 

@@ -1,13 +1,44 @@
 import simplejson as json
 
+from jsonfield.fields import JSONFormField, JSONField
+
 from django import forms
-from django.core.exceptions import ImproperlyConfigured
-from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-class ContactConfigurationMixin(object):
+def contact_field_as_dict(value):
 
+    if value and isinstance(value, (unicode, str)):
+        try:
+            value = json.loads(value)
+        except json.JSONDecodeError:
+            value = {}
+
+    if not isinstance(value, dict):
+        value = {}
+
+    return value
+
+
+class BaseContactField(object):
+    """
+    A contact field allows contact information to be stored using a relatively
+    loose ruleset in order to allow for many different contexts to be supported
+    without creating multiple, complex address models.
+
+    The field validates that supplied information is in the form:
+
+    {
+        <group>: {
+            <label>: <value>
+            ...
+        }
+        ...
+    }
+
+    where group and label are part of the field's valid groups and labels,
+    and value is a basic type (integer, string, boolean or null)
+    """
     valid_groups = [
         'business',
         'billing',
@@ -64,14 +95,14 @@ class ContactConfigurationMixin(object):
         self,
         valid_groups=None,
         valid_labels=None,
-        additional_labels=None,
         additional_groups=None,
+        additional_labels=None,
         exclude_groups=None,
         exclude_labels=None,
         *args,
         **kwargs
     ):
-        super(ContactConfigurationMixin, self).__init__(*args, **kwargs)
+        super(BaseContactField, self).__init__(*args, **kwargs)
 
         if valid_groups is not None:
             self.valid_groups = list(valid_groups)
@@ -89,53 +120,14 @@ class ContactConfigurationMixin(object):
             if exclude_labels is not None:
                 self.valid_labels = list(set(self.valid_labels) - set(exclude_labels))
 
+    def validate(self, value, *args, **kwargs):
 
-class BaseContactField(object):
-    """
-    A contact field allows contact information to be stored using a relatively
-    loose ruleset in order to allow for many different contexts to be supported
-    without creating multiple, complex address models.
+        contact_groups = contact_field_as_dict(value)
 
-    The field validates that supplied information is in the form:
-
-    {
-        <group>: {
-            <label>: <value>
-            ...
-        }
-        ...
-    }
-
-    where group and label are part of the field's valid groups and labels,
-    and value is a basic type (integer, string, boolean or null)
-    """
-    def __init__(self, *args, **kwargs):
-        super(BaseContactField, self).__init__(*args, **kwargs)
-        if (
-            'initial' in kwargs
-            and not isinstance(kwargs['initial'], (str, unicode))
-            and not isinstance(json.loads(kwargs['initial'], dict))
-        ):
-            raise ImproperlyConfigured(
-                "Contact field default must be a JSON dictionary."
+        if not isinstance(contact_groups, dict):
+            raise forms.ValidationError(
+                _("Contact groups are not in correct format.")
             )
-        else:
-            kwargs['initial'] = "{}"
-
-    def to_python(self, value):
-
-        if value is None:
-            return {}
-        elif isinstance(value, (unicode, str)):
-            contact_groups = json.loads(value)
-        elif isinstance(value, dict):
-            contact_groups = {}
-            contact_groups.update(value)
-        else:
-            contact_groups = None
-
-        if not contact_groups or not isinstance(contact_groups, dict):
-            raise forms.ValidationError(_("Contact groups are not in correct format."))
 
         group_keys = contact_groups.keys()
         if not set(group_keys) <= set(self.valid_groups):
@@ -144,7 +136,9 @@ class BaseContactField(object):
         for group_key in group_keys:
             contact_labels = contact_groups[group_key]
             if not isinstance(contact_labels, dict):
-                raise forms.ValidationError(_("Contact labels are not in correct format."))
+                raise forms.ValidationError(
+                    _("Contact labels are not in correct format.")
+                )
             label_keys = contact_labels.keys()
             if not set(label_keys) <= set(self.valid_labels):
                 raise forms.ValidationError(_("Invalid contact label supplied."))
@@ -157,14 +151,26 @@ class BaseContactField(object):
         return contact_groups
 
 
-class ContactFormField(ContactConfigurationMixin, BaseContactField, forms.Field):
-    pass
+class ContactFormField(BaseContactField, JSONFormField):
+
+    def __init__(self, *args, **kwargs):
+        super(ContactFormField, self).__init__(*args, **kwargs)
+        if not 'initial' in kwargs:
+            kwargs['initial'] = {}
 
 
-class ContactField(ContactConfigurationMixin, BaseContactField, models.Field):
+class ContactField(BaseContactField, JSONField):
 
-    pass
-    #def formfield(self, **kwargs):
-    #    defaults = {'form_class': BaseContactFormField}
-    #    defaults.update(kwargs)
-    #    return super(ContactField, self).formfield(**defaults)
+    def __init__(self, *args, **kwargs):
+        super(ContactField, self).__init__(*args, **kwargs)
+        if not 'default' in kwargs:
+            kwargs['default'] = {}
+
+    def formfield(self, **kwargs):
+        defaults = {
+            'form_class': ContactFormField,
+            'valid_groups': self.valid_groups,
+            'valid_labels': self.valid_labels
+        }
+        defaults.update(kwargs)
+        return super(ContactField, self).formfield(**defaults)
