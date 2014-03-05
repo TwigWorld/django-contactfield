@@ -6,20 +6,6 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 
-def contact_field_as_dict(value):
-
-    if value and isinstance(value, (unicode, str)):
-        try:
-            value = json.loads(value)
-        except json.JSONDecodeError:
-            value = {}
-
-    if not isinstance(value, dict):
-        value = {}
-
-    return value
-
-
 class BaseContactField(object):
     """
     A contact field allows contact information to be stored using a relatively
@@ -39,7 +25,7 @@ class BaseContactField(object):
     where group and label are part of the field's valid groups and labels,
     and value is a basic type (integer, string, boolean or null)
     """
-    valid_groups = [
+    valid_groups = (
         'business',
         'billing',
         'home',
@@ -47,9 +33,9 @@ class BaseContactField(object):
         'school',
         'shipping',
         'work'
-    ]
+    )
 
-    valid_labels = [
+    valid_labels = (
         # Name
         'salutation',
         'full_name',
@@ -89,7 +75,7 @@ class BaseContactField(object):
         'postal_code',
         # Other
         'notes'
-    ]
+    )
 
     def __init__(
         self,
@@ -102,53 +88,74 @@ class BaseContactField(object):
         *args,
         **kwargs
     ):
-        super(BaseContactField, self).__init__(*args, **kwargs)
 
         if valid_groups is not None:
-            self.valid_groups = list(valid_groups)
+            self._valid_groups = list(valid_groups)
         else:
+            self._valid_groups = list(self.valid_groups)
             if additional_groups is not None:
-                self.valid_groups = list(set(self.valid_groups) | set(additional_groups))
+                self._valid_groups = list(set(self._valid_groups) | set(additional_groups))
             if exclude_groups is not None:
-                self.valid_groups = list(set(self.valid_groups) - set(exclude_groups))
+                self._valid_groups = list(set(self._valid_groups) - set(exclude_groups))
 
         if valid_labels is not None:
-            self.valid_labels = list(valid_labels)
+            self._valid_labels = list(valid_labels)
         else:
+            self._valid_labels = list(self.valid_labels)
             if additional_labels is not None:
-                self.valid_labels = list(set(self.valid_labels) | set(additional_labels))
+                self.valid_labels = list(set(self._valid_labels) | set(additional_labels))
             if exclude_labels is not None:
-                self.valid_labels = list(set(self.valid_labels) - set(exclude_labels))
+                self.valid_labels = list(set(self._valid_labels) - set(exclude_labels))
 
-    def validate(self, value, *args, **kwargs):
+        if 'default' in kwargs:
+            kwargs['default'] = self.as_dict(kwargs['default'])
+        if 'initial' in kwargs:
+            kwargs['initial'] = self.as_dict(kwargs['initial'])
 
-        contact_groups = contact_field_as_dict(value)
+        super(BaseContactField, self).__init__(*args, **kwargs)
 
-        if not isinstance(contact_groups, dict):
-            raise forms.ValidationError(
-                _("Contact groups are not in correct format.")
-            )
+    def _initial_dict(self, initial=None):
+        """
+        Generate an initial contact dictionary for all valid groups and fields.
+        If a dictionary of values is supplied, then these will be applied to
+        the new dictionary.
+        """
+        if initial is None:
+            initial = {}
+        return {
+            group: {
+                label: '' if not initial.get(group, {}).get(label) else initial[group][label]
+                for label in self.get_valid_labels()
+            }
+            for group in self.get_valid_groups()
+        }
 
-        group_keys = contact_groups.keys()
-        if not set(group_keys) <= set(self.valid_groups):
-            raise forms.ValidationError(_("Invalid contact group supplied."))
+    def as_dict(self, value):
+        """
+        Return the contact field as a dictionary of groups and labels. If any
+        formatting issues are encountered with the value, then a blank initial
+        dictionary will be returned.
+        """
+        if value and isinstance(value, (unicode, str)):
+            try:
+                value = json.loads(value)
+            except json.JSONDecodeError:
+                return self._initial_dict()
 
-        for group_key in group_keys:
-            contact_labels = contact_groups[group_key]
-            if not isinstance(contact_labels, dict):
-                raise forms.ValidationError(
-                    _("Contact labels are not in correct format.")
-                )
-            label_keys = contact_labels.keys()
-            if not set(label_keys) <= set(self.valid_labels):
-                raise forms.ValidationError(_("Invalid contact label supplied."))
+        if not isinstance(value, dict):
+            return self._initial_dict()
 
-            for label_key in label_keys:
-                label_value = contact_labels[label_key]
-                if not isinstance(label_value, (int, str, unicode, bool, None.__class__)):
-                    raise forms.ValidationError(_("Invalid contact value supplied."))
+        return self._initial_dict(value)
 
-        return contact_groups
+    def get_valid_groups(self):
+        return self._valid_groups
+
+    def get_valid_labels(self):
+        return self._valid_labels
+
+    def clean(self, value):
+        value = super(BaseContactField, self).clean(value)
+        return self.as_dict(value)
 
 
 class ContactFormField(BaseContactField, JSONFormField):
@@ -156,8 +163,6 @@ class ContactFormField(BaseContactField, JSONFormField):
     def __init__(self, *args, **kwargs):
         if not 'initial' in kwargs:
             kwargs['initial'] = {}
-        if not 'widget' in kwargs:
-            kwargs['widget'] = forms.HiddenInput
         super(ContactFormField, self).__init__(*args, **kwargs)
 
 
@@ -172,9 +177,8 @@ class ContactField(BaseContactField, JSONField):
     def formfield(self, **kwargs):
         defaults = {
             'form_class': ContactFormField,
-            'valid_groups': self.valid_groups,
-            'valid_labels': self.valid_labels,
-            'widget': forms.HiddenInput
+            'valid_groups': self.get_valid_groups(),
+            'valid_labels': self.get_valid_labels()
         }
         defaults.update(kwargs)
         return super(ContactField, self).formfield(**defaults)
