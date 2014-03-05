@@ -16,8 +16,8 @@ Usage
 -----
 
 Contactfield defines a field class (one for standard forms and one for model
-forms), and a form mixin. You must use both to fully benefit from the module's
-features.
+forms), and a form mixin. You must use both together to fully benefit from the
+module's features.
 
 
 ###Basic Form example
@@ -86,10 +86,17 @@ There are two ways to customise contact field usage:
  - Define the valid groups and labels for a field
  - Limit which groups and labels are displayed on a particular form
 
+The former defines the superset of values that a contact field can contain
+contain - in other words all groups and labels for all scenarios that the
+field is likely to be used in.
+
+The latter allows you to create forms for a specific subset of allowed groups
+and labels, without changing or otherwise restricting the values that the
+field itself can store.
+
 ###Defining your own groups and labels
 
-A field's valid_groups and valid_labels defines the superset of values it can
-contain. You can set it in one of two ways:
+You can set these in one of two ways:
 
  - Subclass the contact field, and redefine valid_groups and valid_labels
  - Instantiate contact field and pass in any of the following arguments:
@@ -114,9 +121,34 @@ groups or labels in a currently deployed app. But be aware if you remove
 allowable labels, then any stored data for the field that uses those old
 labels should be considered lost.
 
+```python
+
+contact_field = ContactField(
+    valid_groups=['personal', 'work'],
+    valid_labels=['role', 'phone', 'email'],
+    default={'personal': {'role': 'N/A'}}
+)
+
+# Default contact
+
+{
+    'personal': {
+        'role': 'N/A',
+        'email': '',
+        'phone': ''
+    },
+    'work': {
+        'role': '',
+        'email': '',
+        'phone': ''
+    },
+}
+
+```
+
 ###Limiting groups and labels in forms
 
-While the valid_groups and valid_labels parameters define all possible entries
+While the valid_groups and valid_labels parameters define **all** possible entries
 that the contact field can contain, it is unlikely you would want to display
 them all in a single form.
 
@@ -138,5 +170,12 @@ form = ContactForm(
         'contact_info': ['full_name', 'street_address', 'city', 'region', 'postal_code']
     },
 )
+
+# Creates the following fields:
+#     contact_info__personal__full_name
+#     contact_info__personal__street_address
+#     contact_info__personal__city
+#     contact_info__personal__region
+#     contact_info__personal__postal_code
 
 ```
