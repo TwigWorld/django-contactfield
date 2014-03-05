@@ -5,6 +5,8 @@ from jsonfield.fields import JSONFormField, JSONField
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from widgets import NullWidget
+
 
 class BaseContactField(object):
     """
@@ -160,6 +162,8 @@ class ContactFormField(BaseContactField, JSONFormField):
     def __init__(self, *args, **kwargs):
         if not 'initial' in kwargs:
             kwargs['initial'] = {}
+        # Always override widget
+        kwargs['widget'] = NullWidget
         super(ContactFormField, self).__init__(*args, **kwargs)
 
     def bound_data(self, data, initial):
