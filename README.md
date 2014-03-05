@@ -87,8 +87,8 @@ There are two ways to customise contact field usage:
  - Limit which groups and labels are displayed on a particular form
 
 The former defines the superset of values that a contact field can contain
-contain - in other words all groups and labels for all scenarios that the
-field is likely to be used in.
+- in other words all groups and labels for all scenarios that the field is
+likely to be used in.
 
 The latter allows you to create forms for a specific subset of allowed groups
 and labels, without changing or otherwise restricting the values that the
@@ -99,7 +99,7 @@ field itself can store.
 You can set these in one of two ways:
 
  - Subclass the contact field, and redefine valid_groups and valid_labels
- - Instantiate contact field and pass in any of the following arguments:
+ - Instantiate the contact field and pass in any of the following arguments:
    * valid_groups
    * valid_labels
    * addtional_groups
@@ -111,15 +111,14 @@ Where the 'additional' and 'exclude' keywords modify the original properties of
 the field. These values will be ignored if valid_groups or valid_fields are
 also supplied as arguments.
 
-The value of the field will always contain all valid groups and valid fields
-as keys, even if values have not yet been set for them.
+The stored value of the field will always contain all valid groups and valid
+fields as keys (even if values have not yet been set for them).
 
 Any values that are supplied to the field that do not correspond to a valid
 group/label pair will simply be ignored. This extra data is cleansed away and
 no error is raised - this prevents headaches should you ever change the
 groups or labels in a currently deployed app. But be aware if you remove
-allowable labels, then any stored data for the field that uses those old
-labels should be considered lost.
+allowable labels, then any stored data for those labels should be considered lost.
 
 ```python
 
@@ -129,7 +128,7 @@ contact_field = ContactField(
     default={'personal': {'role': 'N/A'}}
 )
 
-# Default contact
+# Default contact with all the available labels the field can store
 
 {
     'personal': {
@@ -159,8 +158,8 @@ Or you may wish to present different address labels to different users
 depending on the user's country (for example state and zip code for US users).
 
 To do this, simply pass in contact_group_subsets and contact_label_subsets
-when instantiating the form. As a form may contain multiple contact fields,
-these values need to be a dictionary for each field you wish to update.
+when instantiating the form. Because a form may contain multiple contact fields,
+these values need to be a dictionary, with a key for each field you wish to update.
 
 ```python
 
