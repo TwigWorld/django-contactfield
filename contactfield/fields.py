@@ -12,7 +12,7 @@ class BaseContactField(object):
     loose ruleset in order to allow for many different contexts to be supported
     without creating multiple, complex address models.
 
-    The field validates that supplied information is in the form:
+    Contact data takes the form:
 
     {
         <group>: {
@@ -25,6 +25,7 @@ class BaseContactField(object):
     where group and label are part of the field's valid groups and labels,
     and value is a basic type (integer, string, boolean or null)
     """
+
     valid_groups = (
         'business',
         'billing',
@@ -153,10 +154,6 @@ class BaseContactField(object):
     def get_valid_labels(self):
         return self._valid_labels
 
-    def clean(self, value):
-        value = super(BaseContactField, self).clean(value)
-        return self.as_dict(value)
-
 
 class ContactFormField(BaseContactField, JSONFormField):
 
@@ -165,6 +162,14 @@ class ContactFormField(BaseContactField, JSONFormField):
             kwargs['initial'] = {}
         super(ContactFormField, self).__init__(*args, **kwargs)
 
+    def bound_data(self, data, initial):
+        # This field is never updated directly in a form
+        return initial
+
+    def clean(self, value):
+        value = super(BaseContactField, self).clean(value)
+        return self.as_dict(value)
+
 
 class ContactField(BaseContactField, JSONField):
 
@@ -172,7 +177,6 @@ class ContactField(BaseContactField, JSONField):
         if not 'default' in kwargs:
             kwargs['default'] = {}
         super(ContactField, self).__init__(*args, **kwargs)
-
 
     def formfield(self, **kwargs):
         defaults = {
