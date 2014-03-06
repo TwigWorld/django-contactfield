@@ -4,13 +4,6 @@ django-contactfield
 A flexible, customisable contact field for Django that can store different
 address formats based on context.
 
-To do
------
-
- - Tests
- - Custom validation / fields for labels
-
-
 Usage
 -----
 
@@ -83,18 +76,16 @@ Customisation
 There are several ways to customise contact field usage:
 
  - Define the valid groups and labels for a field
- - Contol how the field labels are displayed
  - Limit which groups and labels are displayed on a particular form
-
-The former defines the superset of values that a contact field can contain -
-in other words all groups and labels for all scenarios that the field is
-likely to be used in.
-
-The latter allows you to create forms for a specific subset of allowed groups
-and labels, without changing or otherwise restricting the values that the
-field itself can store.
+ - Contol how the field labels are displayed
+ - Manipulate the field behabiour for a contact field label
+ - Change the way the field returns its value
 
 ###Defining your own groups and labels
+
+A contact field's valid groups and labels defines the superset of values that
+it can contain - in other words all groups and labels for all scenarios that
+the field is likely to be used in.
 
 You can set these in one of two ways:
 
@@ -164,13 +155,15 @@ these values need to be a dictionary, with a key for each field you wish to upda
 ```python
 
 form = ContactForm(
-    contact_group_subsets={'contact_info': ['personal']},
+    contact_group_subsets={
+      'contact_info': ['personal']
+    },
     contact_label_subsets={
         'contact_info': ['full_name', 'street_address', 'city', 'region', 'postal_code']
     },
 )
 
-# Creates the following fields:
+# Assuiming you have a field called contact_info, creates the following fields:
 #     contact_info__personal__full_name
 #     contact_info__personal__street_address
 #     contact_info__personal__city
@@ -191,7 +184,10 @@ the form (valid parameters are field, group and label).
 
 # Examples
 
+# "[Contact (billing)]: Full name"
 contact_label_format = "[{field} ({group})]: {label}"
+
+# "Full name"
 contact_label_format = "{label}"
 
 ```
@@ -219,9 +215,38 @@ contact_label_display_names = {
 
 ```
 
-### Other arguments
+### Manipulating label field behaviour
 
-####concise
+By default, any pseudo field created by the contact field form will be of type
+CharField and a value is not required to validate the form.
+
+It is straightforward to change the field, validation, widget or other property
+of the field by changing the form's **contact_label_kwargs** property.
+
+This property is a dictionary of pseudo field names and the keyword arguments
+you wish to pass to its field, with an additional keyword argument for changing
+the field class itself.
+
+```python
+
+# Example
+
+contact_label_kwargs = {
+    'contact_info__personal__full_name': {
+        'required': True
+    },
+    'contact_info__personal__email': {
+        'field': forms.EmailField,
+        'required': True,
+    },
+    'contact_info__billing__notes': {
+        'widget': forms.Textarea
+    }
+}
+
+```
+
+### Changing the field's data output
 
 By default, a contactifeld form will return a dictionary containing all possible
 values that it can store, even if those values are empty. If you set concise

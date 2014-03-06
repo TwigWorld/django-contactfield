@@ -31,6 +31,7 @@ class ContactFieldFormMixin(object):
     """
 
     contact_label_format = '{group}: {label}'
+    contact_label_kwargs = {}
 
     contact_field_display_names = {}
 
@@ -63,7 +64,7 @@ class ContactFieldFormMixin(object):
         'email': _('Email'),
         'do_not_email': _('Do not Email'),
         # Website
-        'website': _('Wbsite'),
+        'website': _('Website'),
         # Address
         'address_1': _('Address (line 1)'),
         'address_2': _('Address (line 2)'),
@@ -86,10 +87,15 @@ class ContactFieldFormMixin(object):
         'notes': _('Notes')
     }
 
+    contact_group_subsets = {}
+    contact_label_subsets = {}
+
     def __init__(
         self,
         contact_group_subsets=None,
         contact_label_subsets=None,
+        required_contact_labels=None,
+        contact_label_kwargs=None,
         *args,
         **kwargs
     ):
@@ -98,9 +104,14 @@ class ContactFieldFormMixin(object):
         # Find all the contact fields, and create dynamic fields based on
         # valid_groups and valid_labels, filtered by relevant subsets
         if contact_group_subsets is None:
-            contact_group_subsets = {}
+            contact_group_subsets = self.contact_group_subsets
         if contact_label_subsets is None:
-            contact_label_subsets = {}
+            contact_label_subsets = self.contact_label_subsets
+
+        # Get a mapping of required fields and widgets
+        if contact_label_kwargs is None:
+            contact_label_kwargs = self.contact_label_kwargs
+
         self._contact_pseudo_fields = {}
         for field_name, field in filter(
             lambda (field_name, field): isinstance(field, ContactFormField),
@@ -116,16 +127,21 @@ class ContactFieldFormMixin(object):
                 lambda label: valid_labels_for_field is None or label in valid_labels_for_field,
                 field.get_valid_labels()
             )
+
             self._contact_pseudo_fields[field_name] = {}
             for valid_group in valid_groups:
                 for valid_label in valid_labels:
                     pseudo_field_name = '%s__%s__%s' % (field_name, valid_group, valid_label)
+                    label_kwargs = contact_label_kwargs.get(pseudo_field_name, {})
+                    FieldClass = label_kwargs.pop('field', forms.CharField)
+                    if not 'required' in label_kwargs:
+                        label_kwargs['required'] = False
                     if self[field_name].value() is not None:
                         initial = self.fields[field_name].as_dict(self[field_name].value()).get(valid_group, {}).get(valid_label)
                     else:
                         initial = None
-                    charfield = forms.CharField(
-                        required=False,
+
+                    pseudo_field = FieldClass(
                         initial=initial,
                         label=self.contact_label_format.format(
                             field=unicode(self.contact_field_display_names.get(
@@ -137,10 +153,11 @@ class ContactFieldFormMixin(object):
                             label=unicode(self.contact_label_display_names.get(
                                 valid_label, pretty_name(valid_label)
                             ))
-                        )
+                        ),
+                        **label_kwargs
                     )
-                    self.fields[pseudo_field_name] = charfield
-                    self._contact_pseudo_fields[field_name][pseudo_field_name] = charfield
+                    self.fields[pseudo_field_name] = pseudo_field
+                    self._contact_pseudo_fields[field_name][pseudo_field_name] = pseudo_field
 
     def __getattribute__(self, name, *args, **kwargs):
         if name[:6] == 'clean_' and name[6:] in self._contact_pseudo_fields.keys():
