@@ -1,6 +1,7 @@
 from functools import partial
 
 from django import forms
+from django.forms.forms import pretty_name
 
 from fields import ContactFormField
 
@@ -27,6 +28,11 @@ class ContactFieldFormMixin(object):
     will be left intact, so you can, for example, create a seperate model form
     for billing and personal details using the same field.
     """
+
+    contact_label_format = '{group}: {label}'
+    contact_field_display_names = {}
+    contact_group_display_names = {}
+    contact_label_display_names = {}
 
     def __init__(
         self,
@@ -66,7 +72,21 @@ class ContactFieldFormMixin(object):
                         initial = self.fields[field_name].as_dict(self[field_name].value()).get(valid_group, {}).get(valid_label)
                     else:
                         initial = None
-                    charfield = forms.CharField(required=False, initial=initial)
+                    charfield = forms.CharField(
+                        required=False,
+                        initial=initial,
+                        label=self.contact_label_format.format(
+                            field=unicode(self.contact_field_display_names.get(
+                                field_name, pretty_name(field_name)
+                            )),
+                            group=unicode(self.contact_group_display_names.get(
+                                valid_group, pretty_name(valid_group)
+                            )),
+                            label=unicode(self.contact_label_display_names.get(
+                                valid_label, pretty_name(valid_label)
+                            ))
+                        )
+                    )
                     self.fields[pseudo_field_name] = charfield
                     self._contact_pseudo_fields[field_name][pseudo_field_name] = charfield
 

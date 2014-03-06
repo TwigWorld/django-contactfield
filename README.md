@@ -8,7 +8,6 @@ To do
 -----
 
  - Tests
- - Custom display names for labels
  - Custom validation / fields for labels
 
 
@@ -81,10 +80,11 @@ from the form. It is updated only by the pseudo fields that are present.
 Customisation
 -------------
 
-There are two ways to customise contact field usage:
+There are three ways to customise contact field usage:
 
  - Define the valid groups and labels for a field
  - Limit which groups and labels are displayed on a particular form
+ - Contol how the field labels are displayed
 
 The former defines the superset of values that a contact field can contain
 - in other words all groups and labels for all scenarios that the field is
@@ -178,3 +178,46 @@ form = ContactForm(
 #     contact_info__personal__postal_code
 
 ```
+
+### Controlling how labels are displayed
+
+The default output for a label is **group: label** where group is the group
+name and label is the label name (capitalised and with underscores replaced).
+
+To change this format, simply update the **contact_label_format** property of
+the form (valid parameters are field, group and label).
+
+```python
+
+# Examples
+
+contact_label_format = "[{field} ({group})]: {label}"
+contact_label_format = "{label}"
+
+```
+
+When you are happy with the output format, you can also provide alternative
+display names for any field, group or label value by updating the following
+properties:
+
+ - contact_field_display_names
+ - contact_group_display_names
+ - contact_label_display_names
+
+Each is a dictionary, mapping a name to a displayable output. You can provide
+lazy translatable values if you wish.
+
+```python
+
+# Example
+
+contact_label_display_names = {
+  'full_name': _("Name"),
+  'telephone': _("Telephone number")
+  ...
+}
+
+```
+
+Obviously you would only need to provide values for the parameters you are
+actually outputting.
