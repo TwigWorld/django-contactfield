@@ -86,8 +86,8 @@ There are three ways to customise contact field usage:
  - Limit which groups and labels are displayed on a particular form
  - Contol how the field labels are displayed
 
-The former defines the superset of values that a contact field can contain
-- in other words all groups and labels for all scenarios that the field is
+The former defines the superset of values that a contact field can contain -
+in other words all groups and labels for all scenarios that the field is
 likely to be used in.
 
 The latter allows you to create forms for a specific subset of allowed groups
