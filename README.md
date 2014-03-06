@@ -255,3 +255,85 @@ values that have actually been set.
 
 This is useful if you just need to print out the contents and aren't too worried
 about missing keys.
+
+
+Advanced examples
+-----------------
+
+### An order form using Crispy Forms
+
+```python
+
+class QuoteForm(ContactFieldFormMixin, forms.Form):
+
+    contact_label_format = '{label}'
+
+    contact_label_kwargs = {
+        'contact_info__personal__full_name': {
+            'required': True
+        },
+        'contact_info__personal__email': {
+            'field': forms.EmailField,
+            'required': True,
+        },
+        'contact_info__billing__notes': {
+            'widget': forms.Textarea
+        }
+    }
+
+    contact_info = ContactFormField(concise=True)
+
+    quote_type = forms.ChoiceField(
+        choices=(
+            ('individual', _('Individual')),
+            ('school', _('School')),
+            ('business', _('Business')),
+        ),
+        label=_('Quote type')
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(QuoteForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.label_class = 'col-xs-2'
+        self.helper.field_class = 'col-xs-10'
+        self.helper.layout = Layout(
+            Fieldset(
+                '',
+                Field('quote_type'),
+            ),
+            Fieldset(
+                _('Contact details'),
+                Field('contact_info__personal__full_name'),
+                Field('contact_info__personal__email'),
+                Field('contact_info__personal__phone'),
+                Field('contact_info__personal__country'),
+            ),
+            Fieldset(
+                _('School details'),
+                Field('contact_info__school__name'),
+                Field('contact_info__school__address_1'),
+                Field('contact_info__school__address_2'),
+                Field('contact_info__school__address_3'),
+                Field('contact_info__school__address_4'),
+                Field('contact_info__school__website'),
+            ),
+            Fieldset(
+                _('Company details'),
+                Field('contact_info__school__name'),
+                Field('contact_info__business__address_1'),
+                Field('contact_info__business__address_2'),
+                Field('contact_info__business__address_3'),
+                Field('contact_info__business__address_4'),
+                Field('contact_info__business__website'),
+            ),
+            Fieldset(
+                _('Notes'),
+                Field('contact_info__billing__notes')
+            ),
+            ButtonHolder(
+                Submit('submit', _('Submit'))
+            )
+        )
+
+```
