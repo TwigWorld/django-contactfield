@@ -218,6 +218,3 @@ contact_label_display_names = {
 }
 
 ```
-
-Obviously you would only need to provide values for the parameters you are
-actually outputting.
