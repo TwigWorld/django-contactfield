@@ -80,11 +80,11 @@ from the form. It is updated only by the pseudo fields that are present.
 Customisation
 -------------
 
-There are three ways to customise contact field usage:
+There are several ways to customise contact field usage:
 
  - Define the valid groups and labels for a field
- - Limit which groups and labels are displayed on a particular form
  - Contol how the field labels are displayed
+ - Limit which groups and labels are displayed on a particular form
 
 The former defines the superset of values that a contact field can contain -
 in other words all groups and labels for all scenarios that the field is
@@ -218,3 +218,15 @@ contact_label_display_names = {
 }
 
 ```
+
+### Other arguments
+
+####concise
+
+By default, a contactifeld form will return a dictionary containing all possible
+values that it can store, even if those values are empty. If you set concise
+to True when instantiating the field, it will only return a dictionary with
+values that have actually been set.
+
+This is useful if you just need to print out the contents and aren't too worried
+about missing keys.

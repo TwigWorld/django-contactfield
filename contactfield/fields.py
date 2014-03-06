@@ -88,6 +88,7 @@ class BaseContactField(object):
         additional_labels=None,
         exclude_groups=None,
         exclude_labels=None,
+        concise=False,
         *args,
         **kwargs
     ):
@@ -110,12 +111,15 @@ class BaseContactField(object):
             if exclude_labels is not None:
                 self.valid_labels = list(set(self._valid_labels) - set(exclude_labels))
 
+        self._concise = concise
+
         if 'default' in kwargs:
             kwargs['default'] = self.as_dict(kwargs['default'])
         if 'initial' in kwargs:
             kwargs['initial'] = self.as_dict(kwargs['initial'])
 
         super(BaseContactField, self).__init__(*args, **kwargs)
+        self.required = False
 
     def _initial_dict(self, initial=None):
         """
@@ -125,13 +129,21 @@ class BaseContactField(object):
         """
         if initial is None:
             initial = {}
-        return {
+        full_initial = {
             group: {
                 label: '' if not initial.get(group, {}).get(label) else initial[group][label]
                 for label in self.get_valid_labels()
             }
             for group in self.get_valid_groups()
         }
+        if self.concise_mode():
+            concise_initial = {}
+            for group, labels in full_initial.iteritems():
+                for label, value in labels.iteritems():
+                    if value:
+                        concise_initial.setdefault(group, {})[label] = value
+            return concise_initial
+        return full_initial
 
     def as_dict(self, value):
         """
@@ -155,6 +167,9 @@ class BaseContactField(object):
 
     def get_valid_labels(self):
         return self._valid_labels
+
+    def concise_mode(self):
+        return self._concise
 
 
 class ContactFormField(BaseContactField, JSONFormField):

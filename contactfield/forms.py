@@ -2,6 +2,7 @@ from functools import partial
 
 from django import forms
 from django.forms.forms import pretty_name
+from django.utils.translation import ugettext_lazy as _
 
 from fields import ContactFormField
 
@@ -30,9 +31,60 @@ class ContactFieldFormMixin(object):
     """
 
     contact_label_format = '{group}: {label}'
+
     contact_field_display_names = {}
-    contact_group_display_names = {}
-    contact_label_display_names = {}
+
+    contact_group_display_names = {
+        'business': _('Business'),
+        'billing': _('Billing'),
+        'home': _('Home'),
+        'personal': _('Personal'),
+        'school': _('School'),
+        'shipping': _('Shipping'),
+        'work': _('Work')
+    }
+
+    contact_label_display_names = {
+        # Name
+        'salutation': _('Salutation'),
+        'full_name': _('Full name'),
+        'first_name': _('First name'),
+        'middle_names': _('Middle names'),
+        'last_name': _('Last name'),
+        'maiden_name': _('Maiden name'),
+        'company_name': _('Company name'),
+        'job_title': _('Job title'),
+        # Telephone
+        'phone': _('Phone'),
+        'mobile': _('Mobile'),
+        'fax': _('Fax'),
+        'do_not_call': _('Do not call'),
+        # Email
+        'email': _('Email'),
+        'do_not_email': _('Do not Email'),
+        # Website
+        'website': _('Wbsite'),
+        # Address
+        'address_1': _('Address (line 1)'),
+        'address_2': _('Address (line 2)'),
+        'address_3': _('Address (line 3)'),
+        'address_4': _('Address (line 4)'),
+        'address_5': _('Address (line 5)'),
+        'address_6': _('Address (line 6)'),
+        'address_7': _('Address (line 7)'),
+        'address_8': _('Address (line 8)'),
+        'address_9': _('Address (line 9)'),
+        'building': _('Building'),
+        'street_address': _('Street address'),
+        'city': _('City'),
+        'region': _('Region'),
+        'state': _('State'),
+        'country': _('Country'),
+        'state': _('State'),
+        'postal_code': _('Postal code'),
+        # Other
+        'notes': _('Notes')
+    }
 
     def __init__(
         self,
@@ -106,6 +158,7 @@ class ContactFieldFormMixin(object):
         for pseudo_field_name, field in self._contact_pseudo_fields[contact_field_name].iteritems():
             pseudo_field_value = self.data.get(pseudo_field_name, None)
             if pseudo_field_value is not None:
-                field_name, group, label = pseudo_field_name.split('__')
-                cleaned_data.setdefault(group, {})[label] = pseudo_field_value
+                if pseudo_field_value or not self.fields[contact_field_name].concise_mode():
+                    field_name, group, label = pseudo_field_name.split('__')
+                    cleaned_data.setdefault(group, {})[label] = pseudo_field_value
         return cleaned_data
