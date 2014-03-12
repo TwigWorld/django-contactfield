@@ -30,7 +30,7 @@ class ContactFieldFormMixin(object):
     for billing and personal details using the same field.
     """
 
-    contact_label_format = '{group}: {label}'
+    contact_label_format = u'{group}: {label}'
     contact_label_kwargs = {}
 
     contact_field_display_names = {}
