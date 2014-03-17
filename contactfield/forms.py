@@ -74,7 +74,8 @@ class ContactFieldFormMixin(object):
             for valid_group in valid_groups:
                 for valid_label in valid_labels:
                     pseudo_field_name = '%s__%s__%s' % (field_name, valid_group, valid_label)
-                    field_kwargs = contact_field_kwargs.get(pseudo_field_name, {})
+                    field_kwargs = {}
+                    field_kwargs.update(contact_field_kwargs.get(pseudo_field_name, {}))
                     FieldClass = field_kwargs.pop('field', forms.CharField)
                     if not 'required' in field_kwargs:
                         field_kwargs['required'] = False
