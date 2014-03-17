@@ -177,41 +177,39 @@ form = ContactForm(
 The default output for a label is **group: label** where group is the group
 name and label is the label name (capitalised and with underscores replaced).
 
-To change this format, simply update the **contact_label_format** property of
-the form (valid parameters are field, group and label).
+To change this format, simply pass the **label_format** argument to the contact
+field (valid parameters are field, group and label).
 
 ```python
 
 # Examples
 
 # "[Contact (billing)]: Full name"
-contact_label_format = "[{field} ({group})]: {label}"
-
-# "Full name"
-contact_label_format = "{label}"
+confactfield = ContactField(label_format='{field} ({group})]: {label}'')
 
 ```
 
 When you are happy with the output format, you can also provide alternative
-display names for any field, group or label value by updating the following
-properties:
+display names for any field, group or label value by passing the following
+arguments:
 
- - contact_field_display_names
- - contact_group_display_names
- - contact_label_display_names
+ - display_name
+ - update_group_display_names
+ - update_label_display_names
 
 Each is a dictionary, mapping a name to a displayable output. You can provide
-lazy translatable values if you wish.
+lazy translatable values if you wish. In fact these are already supplied for
+all the existing labels (hence the update part of the argument name).
 
 ```python
 
 # Example
 
-contact_label_display_names = {
-  'full_name': _("Name"),
-  'telephone': _("Telephone number")
-  ...
-}
+confactfield = ContactField(
+    label_display_names = {
+        'full_name': _("Name"),
+        'telephone': _("Telephone number")
+    }
 
 ```
 
@@ -335,5 +333,35 @@ class QuoteForm(ContactFieldFormMixin, forms.Form):
                 Submit('submit', _('Submit'))
             )
         )
+
+```
+
+Template tags
+-------------
+
+### contact_cards
+
+If you need to output the value of a contact field outside of a form, complete
+with translated labels, then you can use the contact cards filter.
+
+Simply use it with a form instance or model instance that contains one or more
+contact fields, and it will return a dictionary broken down into field names,
+groups and labels (ordered) for the form or model.
+
+By default, this will only return populated fields. If you want to return all
+fields, then pass in concise=False
+
+```html
+
+# Example
+
+load contactfield_tags
+
+{% with obj|contact_cards as contact_cards %}
+    {{ contact_cards.contact_field.billing }}
+    <!-- OrderedDict([('full_name', {'display_name': u'Full name', 'value': u'Anonymous'}), ...]) -->
+    {{ contact_cards.contact_field.billing.display_name }}: {{ contact_cards.contact_field.billing.value }}
+    <!-- Name (Billing): Anonymous-->
+{% endwith %}
 
 ```

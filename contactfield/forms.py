@@ -29,73 +29,15 @@ class ContactFieldFormMixin(object):
     will be left intact, so you can, for example, create a seperate model form
     for billing and personal details using the same field.
     """
-
-    contact_label_format = u'{group}: {label}'
-    contact_label_kwargs = {}
-
-    contact_field_display_names = {}
-
-    contact_group_display_names = {
-        'business': _('Business'),
-        'billing': _('Billing'),
-        'home': _('Home'),
-        'personal': _('Personal'),
-        'school': _('School'),
-        'shipping': _('Shipping'),
-        'work': _('Work')
-    }
-
-    contact_label_display_names = {
-        # Name
-        'salutation': _('Salutation'),
-        'full_name': _('Full name'),
-        'first_name': _('First name'),
-        'middle_names': _('Middle names'),
-        'last_name': _('Last name'),
-        'maiden_name': _('Maiden name'),
-        'company_name': _('Company name'),
-        'job_title': _('Job title'),
-        # Telephone
-        'phone': _('Phone'),
-        'mobile': _('Mobile'),
-        'fax': _('Fax'),
-        'do_not_call': _('Do not call'),
-        # Email
-        'email': _('Email'),
-        'do_not_email': _('Do not Email'),
-        # Website
-        'website': _('Website'),
-        # Address
-        'address_1': _('Address (line 1)'),
-        'address_2': _('Address (line 2)'),
-        'address_3': _('Address (line 3)'),
-        'address_4': _('Address (line 4)'),
-        'address_5': _('Address (line 5)'),
-        'address_6': _('Address (line 6)'),
-        'address_7': _('Address (line 7)'),
-        'address_8': _('Address (line 8)'),
-        'address_9': _('Address (line 9)'),
-        'building': _('Building'),
-        'street_address': _('Street address'),
-        'city': _('City'),
-        'region': _('Region'),
-        'state': _('State'),
-        'country': _('Country'),
-        'state': _('State'),
-        'postal_code': _('Postal code'),
-        # Other
-        'notes': _('Notes')
-    }
-
     contact_group_subsets = {}
     contact_label_subsets = {}
+    contact_field_kwargs = {}
 
     def __init__(
         self,
         contact_group_subsets=None,
         contact_label_subsets=None,
-        required_contact_labels=None,
-        contact_label_kwargs=None,
+        contact_field_kwargs=None,
         *args,
         **kwargs
     ):
@@ -109,8 +51,8 @@ class ContactFieldFormMixin(object):
             contact_label_subsets = self.contact_label_subsets
 
         # Get a mapping of required fields and widgets
-        if contact_label_kwargs is None:
-            contact_label_kwargs = self.contact_label_kwargs
+        if contact_field_kwargs is None:
+            contact_field_kwargs = self.contact_field_kwargs
 
         self._contact_pseudo_fields = {}
         for field_name, field in filter(
@@ -132,10 +74,10 @@ class ContactFieldFormMixin(object):
             for valid_group in valid_groups:
                 for valid_label in valid_labels:
                     pseudo_field_name = '%s__%s__%s' % (field_name, valid_group, valid_label)
-                    label_kwargs = contact_label_kwargs.get(pseudo_field_name, {})
-                    FieldClass = label_kwargs.pop('field', forms.CharField)
-                    if not 'required' in label_kwargs:
-                        label_kwargs['required'] = False
+                    field_kwargs = contact_field_kwargs.get(pseudo_field_name, {})
+                    FieldClass = field_kwargs.pop('field', forms.CharField)
+                    if not 'required' in field_kwargs:
+                        field_kwargs['required'] = False
                     if self[field_name].value() is not None:
                         initial = self.fields[field_name].as_dict(self[field_name].value()).get(valid_group, {}).get(valid_label)
                     else:
@@ -143,18 +85,16 @@ class ContactFieldFormMixin(object):
 
                     pseudo_field = FieldClass(
                         initial=initial,
-                        label=self.contact_label_format.format(
-                            field=unicode(self.contact_field_display_names.get(
-                                field_name, pretty_name(field_name)
-                            )),
-                            group=unicode(self.contact_group_display_names.get(
+                        label=field.label_format.format(
+                            field=unicode(field.display_name),
+                            group=unicode(field.group_display_names.get(
                                 valid_group, pretty_name(valid_group)
                             )),
-                            label=unicode(self.contact_label_display_names.get(
+                            label=unicode(field.label_display_names.get(
                                 valid_label, pretty_name(valid_label)
                             ))
                         ),
-                        **label_kwargs
+                        **field_kwargs
                     )
                     self.fields[pseudo_field_name] = pseudo_field
                     self._contact_pseudo_fields[field_name][pseudo_field_name] = pseudo_field

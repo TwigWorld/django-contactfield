@@ -80,6 +80,62 @@ class BaseContactField(object):
         'notes'
     )
 
+    label_format = u'{group}: {label}'
+
+    display_name = _('Contact information')
+
+    group_display_names = {
+        'business': _('Business'),
+        'billing': _('Billing'),
+        'home': _('Home'),
+        'personal': _('Personal'),
+        'school': _('School'),
+        'shipping': _('Shipping'),
+        'work': _('Work')
+    }
+
+    label_display_names = {
+        # Name
+        'salutation': _('Salutation'),
+        'full_name': _('Full name'),
+        'first_name': _('First name'),
+        'middle_names': _('Middle names'),
+        'last_name': _('Last name'),
+        'maiden_name': _('Maiden name'),
+        'company_name': _('Company name'),
+        'job_title': _('Job title'),
+        # Telephone
+        'phone': _('Phone'),
+        'mobile': _('Mobile'),
+        'fax': _('Fax'),
+        'do_not_call': _('Do not call'),
+        # Email
+        'email': _('Email'),
+        'do_not_email': _('Do not Email'),
+        # Website
+        'website': _('Website'),
+        # Address
+        'address_1': _('Address (line 1)'),
+        'address_2': _('Address (line 2)'),
+        'address_3': _('Address (line 3)'),
+        'address_4': _('Address (line 4)'),
+        'address_5': _('Address (line 5)'),
+        'address_6': _('Address (line 6)'),
+        'address_7': _('Address (line 7)'),
+        'address_8': _('Address (line 8)'),
+        'address_9': _('Address (line 9)'),
+        'building': _('Building'),
+        'street_address': _('Street address'),
+        'city': _('City'),
+        'region': _('Region'),
+        'state': _('State'),
+        'country': _('Country'),
+        'state': _('State'),
+        'postal_code': _('Postal code'),
+        # Other
+        'notes': _('Notes')
+    }
+
     def __init__(
         self,
         valid_groups=None,
@@ -88,10 +144,15 @@ class BaseContactField(object):
         additional_labels=None,
         exclude_groups=None,
         exclude_labels=None,
+        label_format=None,
+        display_name=None,
+        update_group_display_names=None,
+        update_label_display_names=None,
         concise=False,
         *args,
         **kwargs
     ):
+        # Groups and labels
 
         if valid_groups is not None:
             self._valid_groups = list(valid_groups)
@@ -111,7 +172,29 @@ class BaseContactField(object):
             if exclude_labels is not None:
                 self.valid_labels = list(set(self._valid_labels) - set(exclude_labels))
 
+        # Label format and displayable names
+        if label_format is not None:
+            self.label_format = unicode(label_format)
+        if display_name is not None:
+            self.display_name = display_name
+
+        if update_group_display_names is not None:
+            combined_group_display_names = {}
+            combined_group_display_names.update(self.group_display_names)
+            combined_group_display_names.update(update_group_display_names)
+            self.group_display_names = combined_group_display_names
+
+        if update_label_display_names is not None:
+            combined_label_display_names = {}
+            combined_label_display_names.update(self.label_display_names)
+            combined_label_display_names.update(update_label_display_names)
+            self.label_display_names = combined_label_display_names
+
+        # Output format
+
         self._concise = concise
+
+        # Initial values
 
         if 'default' in kwargs:
             kwargs['default'] = self.as_dict(kwargs['default'])
@@ -201,7 +284,12 @@ class ContactField(BaseContactField, JSONField):
         defaults = {
             'form_class': ContactFormField,
             'valid_groups': self.get_valid_groups(),
-            'valid_labels': self.get_valid_labels()
+            'valid_labels': self.get_valid_labels(),
+            'label_format': self.label_format,
+            'display_name': self.display_name,
+            'update_group_display_names': self.group_display_names,
+            'update_label_display_names': self.label_display_names,
+            'concise': self._concise,
         }
         defaults.update(kwargs)
         return super(ContactField, self).formfield(**defaults)
