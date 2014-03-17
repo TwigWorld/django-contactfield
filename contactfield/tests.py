@@ -1,6 +1,9 @@
 from unittest import TestCase
 
+from django import forms
+
 from fields import BaseContactField, ContactFormField, ContactField
+from forms import ContactFieldFormMixin
 
 
 class FormFieldTest(TestCase):
@@ -176,7 +179,71 @@ class ModelFieldTest(FormFieldTest):
 
 
 class FormMixinTest(TestCase):
-    pass
+
+    def setUp(self):
+        class ContactForm(ContactFieldFormMixin, forms.Form):
+
+            contact_group_subsets = {
+                'contact_field': ['group_1', 'group_2']
+            }
+
+            contact_label_subsets = {
+                'contact_field': ['label_1', 'label_2']
+            }
+
+            contact_field_kwargs = {
+                'contact_field__group_1__label_1': {
+                    'field': forms.IntegerField,
+                    'required': True
+                }
+            }
+
+            contact_field = ContactFormField(
+                valid_groups=['group_1', 'group_2', 'group_3'],
+                valid_labels=['label_1', 'label_2', 'label_3'],
+                concise=True
+            )
+        self.form_class = ContactForm
+
+    def test_pseudo_fields(self):
+        form = self.form_class()
+        self.assertEquals(
+            set(
+                [
+                    'contact_field',
+                    'contact_field__group_1__label_1',
+                    'contact_field__group_1__label_2',
+                    'contact_field__group_2__label_1',
+                    'contact_field__group_2__label_2',
+                ]
+            ),
+            set(form.fields.keys())
+        )
+
+    def test_field_kwargs(self):
+        form = self.form_class()
+        self.assertEquals(
+            form.fields['contact_field__group_1__label_1'].__class__,
+            forms.IntegerField
+        )
+        self.assertTrue(
+            form.fields['contact_field__group_1__label_1'].required,
+        )
+        self.assertFalse(
+            form.fields['contact_field__group_1__label_2'].required,
+        )
+
+    def test_form_field_updated(self):
+        form = self.form_class(data={'contact_field__group_1__label_1': '1'})
+        self.assertEquals(
+            form['contact_field'].value(),
+            {}
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEquals(
+            form.cleaned_data['contact_field'],
+            {'group_1': {'label_1': '1'}}
+        )
 
 
 class TemplateTagsTest(TestCase):
