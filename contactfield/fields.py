@@ -168,9 +168,9 @@ class BaseContactField(object):
         else:
             self._valid_labels = list(self.valid_labels)
             if additional_labels is not None:
-                self.valid_labels = list(set(self._valid_labels) | set(additional_labels))
+                self._valid_labels = list(set(self._valid_labels) | set(additional_labels))
             if exclude_labels is not None:
-                self.valid_labels = list(set(self._valid_labels) - set(exclude_labels))
+                self._valid_labels = list(set(self._valid_labels) - set(exclude_labels))
 
         # Label format and displayable names
         if label_format is not None:
