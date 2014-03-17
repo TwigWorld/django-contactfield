@@ -4,6 +4,7 @@ from django import forms
 
 from fields import BaseContactField, ContactFormField, ContactField
 from forms import ContactFieldFormMixin
+from templatetags.contactfield_tags import contact_cards
 
 
 class FormFieldTest(TestCase):
@@ -247,4 +248,65 @@ class FormMixinTest(TestCase):
 
 
 class TemplateTagsTest(TestCase):
-    pass
+
+    def setUp(self):
+        class ContactForm(ContactFieldFormMixin, forms.Form):
+            contact_field_1 = ContactFormField(
+                valid_groups=['group_1', 'group_2', 'group_3'],
+                valid_labels=['label_1', 'label_2', 'label_3'],
+                update_label_display_names={'label_1': 'LABEL ONE'},
+                concise=True
+            )
+            contact_field_2 = ContactFormField(
+                valid_groups=['group_a', 'group_b', 'group_c'],
+                valid_labels=['label_a', 'label_b', 'label_c'],
+                concise=False
+            )
+        self.form_class = ContactForm
+
+    def test_contact_cards_unbound(self):
+        form = self.form_class(
+            initial={
+                'contact_field_1': {'group_1': {'label_1': '111'}}
+            }
+        )
+        self.assertEquals(
+            contact_cards(form)['contact_field_1']['group_1']['label_1']['display_name'],
+            'Group 1: LABEL ONE'
+        )
+        self.assertEquals(
+            contact_cards(form)['contact_field_1']['group_1']['label_1']['value'],
+            '111'
+        )
+
+        with self.assertRaises(KeyError):
+            contact_cards(form)['contact_field_1']['group_3']['label_1']
+
+        with self.assertRaises(KeyError):
+            contact_cards(form)['contact_field_2']['group_c']['label_c']
+
+        self.assertEquals(
+            contact_cards(form, False)['contact_field_2']['group_c']['label_c']['value'],
+            ''
+        )
+
+    def test_contact_cards_bound(self):
+        form = self.form_class(
+            data={
+                'contact_field_1__group_1__label_1': '111',
+                'contact_field_1__group_1__label_2': '112',
+                'contact_field_1__group_2__label_1': '121',
+                'contact_field_2__group_a__label_a': '2aa',
+            }
+        )
+
+        self.assertEquals(
+            contact_cards(form)['contact_field_1']['group_1']['label_1']['value'],
+            '111'
+        )
+        self.assertEquals(
+            contact_cards(form)['contact_field_2']['group_a']['label_a']['value'],
+            '2aa'
+        )
+        with self.assertRaises(KeyError):
+            contact_cards(form)['contact_field_1']['group_3']['label_1']
