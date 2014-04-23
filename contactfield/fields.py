@@ -3,7 +3,7 @@ import simplejson as json
 from jsonfield.fields import JSONFormField, JSONField
 
 from django import forms
-from django.utils.translation import pgettext, ugettext_lazy as _
+from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
 
 from widgets import NullWidget
 
@@ -87,7 +87,7 @@ class BaseContactField(object):
     group_display_names = {
         'business': _('Business'),
         'billing': _('Billing'),
-        'home': pgettext('Home user', 'Home'),
+        'home': _p('Home user', 'Home'),
         'personal': _('Personal'),
         'school': _('School'),
         'shipping': _('Shipping'),
