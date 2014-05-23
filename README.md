@@ -206,9 +206,9 @@ all the existing labels (hence the update part of the argument name).
 # Example
 
 confactfield = ContactField(
-    label_display_names = {
+    update_label_display_names = {
         'full_name': _("Name"),
-        'telephone': _("Telephone number")
+        'phone': _("Telephone number")
     }
 
 ```
@@ -309,7 +309,7 @@ class QuoteForm(ContactFieldFormMixin, forms.Form):
             ),
             Fieldset(
                 _('School details'),
-                Field('contact_info__school__name'),
+                Field('contact_info__school__company_name'),
                 Field('contact_info__school__address_1'),
                 Field('contact_info__school__address_2'),
                 Field('contact_info__school__address_3'),
@@ -318,7 +318,7 @@ class QuoteForm(ContactFieldFormMixin, forms.Form):
             ),
             Fieldset(
                 _('Company details'),
-                Field('contact_info__school__name'),
+                Field('contact_info__school__company_name'),
                 Field('contact_info__business__address_1'),
                 Field('contact_info__business__address_2'),
                 Field('contact_info__business__address_3'),
