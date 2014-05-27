@@ -2,9 +2,9 @@ import simplejson as json
 
 from jsonfield.fields import JSONFormField, JSONField
 
-from django import forms
 from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
 
+from utils import AccessDict
 from widgets import NullWidget
 
 
@@ -279,6 +279,11 @@ class ContactField(BaseContactField, JSONField):
         if not 'default' in kwargs:
             kwargs['default'] = {}
         super(ContactField, self).__init__(*args, **kwargs)
+
+    def to_python(self, value):
+        value = super(ContactField, self).to_python(value)
+        if isinstance(value, dict):
+            return AccessDict.prepare(value)
 
     def formfield(self, **kwargs):
         defaults = {
