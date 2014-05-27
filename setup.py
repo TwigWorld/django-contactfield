@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='django-contactfield',
-    version='0.1.4',
+    version='0.1.5',
     author='Colin Barnwell',
     packages=['contactfield', 'contactfield.templatetags'],
     description='Customisable contact field for Django',
