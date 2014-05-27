@@ -1,9 +1,7 @@
 class AccessDict(dict):
-    def __getattr__(self, key):
-        try:
-            return self[key]
-        except:
-            return None
+    def __init__(self, *args, **kwargs):
+        super(AccessDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
 
     @classmethod
     def prepare(cls, di):
