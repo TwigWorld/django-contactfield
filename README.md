@@ -12,7 +12,7 @@ forms), and a form mixin. You must use both together to fully benefit from the
 module's features.
 
 
-###Basic Form example
+### Basic Form example
 
 ```python
 
@@ -27,7 +27,7 @@ class ContactForm(ContactFieldFormMixin, forms.Form):
 
 ```
 
-###Basic ModelForm example
+### Basic ModelForm example
 
 ```python
 
@@ -81,7 +81,7 @@ There are several ways to customise contact field usage:
  - Manipulate the field behabiour for a contact field label
  - Change the way the field returns its value
 
-###Defining your own groups and labels
+### Defining your own groups and labels
 
 A contact field's valid groups and labels defines the superset of values that
 it can contain - in other words all groups and labels for all scenarios that
@@ -136,7 +136,7 @@ contact_field = ContactField(
 
 ```
 
-###Limiting groups and labels in forms
+### Limiting groups and labels in forms
 
 While the valid_groups and valid_labels parameters define **all** possible entries
 that the contact field can contain, it is unlikely you would want to display
