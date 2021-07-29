@@ -4,7 +4,7 @@ from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
 
 from jsonfield.fields import JSONFormField, JSONField
 
-from .utils import AccessDict
+from .utils import AccessDict, CastOnAssign
 from .widgets import NullWidget
 
 
@@ -279,6 +279,14 @@ class ContactField(BaseContactField, JSONField):
         if not 'default' in kwargs:
             kwargs['default'] = {}
         super(ContactField, self).__init__(*args, **kwargs)
+
+    def contribute_to_class(self, cls, name):
+        """
+        This ensures that the model that the field belongs to is able to set the
+        field's value through the `to_python` method
+        """
+        super(ContactField, self).contribute_to_class(cls, name)
+        setattr(cls, name, CastOnAssign(self))
 
     def get_default(self):
         default = super(ContactField, self).get_default()
