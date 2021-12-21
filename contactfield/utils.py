@@ -10,7 +10,7 @@ class AccessDict(dict):
         with all nested dicts also converted to AccessDicts
         """
         di = cls(di)
-        for key, value in di.iteritems():
+        for key, value in di.items():
             if type(value) == dict:
                 di[key] = cls.prepare(value)
         return di
