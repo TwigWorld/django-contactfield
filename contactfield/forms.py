@@ -10,10 +10,6 @@ from .fields import ContactFormField
 from builtins import str as unicode
 
 
-def custom_helper(field_name, field, f):
-    return isinstance(field, ContactFormField), self.fields.items()
-
-
 class ContactFieldFormMixin(object):
     """
     Provides the necessary form logic for generating pseudo fields for a
@@ -62,7 +58,8 @@ class ContactFieldFormMixin(object):
             contact_field_kwargs = self.contact_field_kwargs
 
         self._contact_pseudo_fields = {}
-        for field_name, field in filter(lambda field_name, field: isinstance(field, ContactFormField), self.fields.items()):
+        for field_name, field in filter(lambda field_name, field: isinstance(field, ContactFormField),
+                                        self.fields.items()):
             valid_groups_for_field = contact_group_subsets.get(field_name)
             valid_labels_for_field = contact_label_subsets.get(field_name)
             valid_groups = filter(
