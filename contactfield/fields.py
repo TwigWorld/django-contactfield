@@ -4,8 +4,11 @@ from jsonfield.fields import JSONFormField, JSONField
 
 from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
 
-from utils import AccessDict
-from widgets import NullWidget
+from .utils import AccessDict
+from .widgets import NullWidget
+
+# python 3
+from builtins import str as unicode
 
 
 class BaseContactField(object):
@@ -137,20 +140,20 @@ class BaseContactField(object):
     }
 
     def __init__(
-        self,
-        valid_groups=None,
-        valid_labels=None,
-        additional_groups=None,
-        additional_labels=None,
-        exclude_groups=None,
-        exclude_labels=None,
-        label_format=None,
-        display_name=None,
-        update_group_display_names=None,
-        update_label_display_names=None,
-        concise=False,
-        *args,
-        **kwargs
+            self,
+            valid_groups=None,
+            valid_labels=None,
+            additional_groups=None,
+            additional_labels=None,
+            exclude_groups=None,
+            exclude_labels=None,
+            label_format=None,
+            display_name=None,
+            update_group_display_names=None,
+            update_label_display_names=None,
+            concise=False,
+            *args,
+            **kwargs
     ):
         # Groups and labels
 
@@ -221,8 +224,8 @@ class BaseContactField(object):
         }
         if self.concise_mode():
             concise_initial = {}
-            for group, labels in full_initial.iteritems():
-                for label, value in labels.iteritems():
+            for group, labels in full_initial.items():
+                for label, value in labels.items():
                     if value:
                         concise_initial.setdefault(group, {})[label] = value
             return concise_initial

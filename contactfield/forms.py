@@ -4,7 +4,10 @@ from django import forms
 from django.forms.forms import pretty_name
 from django.utils.translation import ugettext_lazy as _
 
-from fields import ContactFormField
+from .fields import ContactFormField
+
+# python 3
+from builtins import str as unicode
 
 
 class ContactFieldFormMixin(object):
@@ -34,12 +37,12 @@ class ContactFieldFormMixin(object):
     contact_field_kwargs = {}
 
     def __init__(
-        self,
-        contact_group_subsets=None,
-        contact_label_subsets=None,
-        contact_field_kwargs=None,
-        *args,
-        **kwargs
+            self,
+            contact_group_subsets=None,
+            contact_label_subsets=None,
+            contact_field_kwargs=None,
+            *args,
+            **kwargs
     ):
         super(ContactFieldFormMixin, self).__init__(*args, **kwargs)
 
@@ -56,8 +59,8 @@ class ContactFieldFormMixin(object):
 
         self._contact_pseudo_fields = {}
         for field_name, field in filter(
-            lambda (field_name, field): isinstance(field, ContactFormField),
-            self.fields.iteritems()
+                lambda (field_name, field): isinstance(field, ContactFormField),
+                self.fields.items()
         ):
             valid_groups_for_field = contact_group_subsets.get(field_name)
             valid_labels_for_field = contact_label_subsets.get(field_name)
@@ -80,7 +83,8 @@ class ContactFieldFormMixin(object):
                     if not 'required' in field_kwargs:
                         field_kwargs['required'] = False
                     if self[field_name].value() is not None:
-                        initial = self.fields[field_name].as_dict(self[field_name].value()).get(valid_group, {}).get(valid_label)
+                        initial = self.fields[field_name].as_dict(self[field_name].value()).get(valid_group, {}).get(
+                            valid_label)
                     else:
                         initial = None
 
@@ -113,7 +117,7 @@ class ContactFieldFormMixin(object):
         cleaned_data = self.fields[contact_field_name].as_dict(
             self[contact_field_name].value()
         )
-        for pseudo_field_name, field in self._contact_pseudo_fields[contact_field_name].iteritems():
+        for pseudo_field_name, field in self._contact_pseudo_fields[contact_field_name].items():
             pseudo_field_value = self.data.get(pseudo_field_name, None)
             if pseudo_field_value is not None:
                 if pseudo_field_value or not self.fields[contact_field_name].concise_mode():
