@@ -1,3 +1,4 @@
+from builtins import str as unicode  # python 3
 from unittest import TestCase
 
 from django import forms
@@ -5,9 +6,6 @@ from django import forms
 from .fields import BaseContactField, ContactFormField, ContactField
 from .forms import ContactFieldFormMixin
 from .templatetags.contactfield_tags import contact_cards
-
-# python 3
-from builtins import str as unicode
 
 
 class FormFieldTest(TestCase):
