@@ -31,7 +31,9 @@ def contact_cards(obj, concise=True):
         return {}
 
     contact_card_dict = {}
-    for field_name, field in filter(lambda (field_name, field): isinstance(field, BaseContactField), fields):
+    # for field_name, field in filter(lambda (field_name, field): isinstance(field, BaseContactField), fields):
+    # for field_name, field in [(field_name, field) for pair in fields if isinstance(field, BaseContactField)]:
+    for field_name, field in filter(lambda pair: isinstance(pair[1], BaseContactField), fields):
         values = value_getter(field_name)
         contact_card_dict[field_name] = {}
         for group in field._valid_groups:
