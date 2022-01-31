@@ -58,8 +58,8 @@ class ContactFieldFormMixin(object):
             contact_field_kwargs = self.contact_field_kwargs
 
         self._contact_pseudo_fields = {}
-        for field_name, field in filter(lambda field_name, field: isinstance(field, ContactFormField), self.fields.items()):
-        # for field_name, field in filter(lambda pair: isinstance(pair[1], ContactFormField), self.fields.items()):
+        pseudo_fields = {}
+        for field_name, field in filter(lambda pair: isinstance(pair[1], ContactFormField), self.fields.items()):
             valid_groups_for_field = contact_group_subsets.get(field_name)
             valid_labels_for_field = contact_label_subsets.get(field_name)
             valid_groups = filter(
@@ -99,8 +99,10 @@ class ContactFieldFormMixin(object):
                         ),
                         **field_kwargs
                     )
-                    self.fields[pseudo_field_name] = pseudo_field
+
+                    pseudo_fields[pseudo_field_name] = pseudo_field
                     self._contact_pseudo_fields[field_name][pseudo_field_name] = pseudo_field
+                self.fields.update(pseudo_fields)
 
     def __getattribute__(self, name, *args, **kwargs):
         if name[:6] == 'clean_' and name[6:] in self._contact_pseudo_fields.keys():
