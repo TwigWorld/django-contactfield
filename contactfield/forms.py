@@ -102,7 +102,7 @@ class ContactFieldFormMixin(object):
 
                     pseudo_fields[pseudo_field_name] = pseudo_field
                     self._contact_pseudo_fields[field_name][pseudo_field_name] = pseudo_field
-                self.fields.update(pseudo_fields)
+        self.fields.update(pseudo_fields)
 
     def __getattribute__(self, name, *args, **kwargs):
         if name[:6] == 'clean_' and name[6:] in self._contact_pseudo_fields.keys():
