@@ -1,14 +1,13 @@
-import simplejson as json
-
-from jsonfield.fields import JSONFormField, JSONField
+import json
+# python 3
+from builtins import str as unicode
 
 from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
 
-from .utils import AccessDict
-from .widgets import NullWidget
+from jsonfield.fields import JSONFormField, JSONField
 
-# python 3
-from builtins import str as unicode
+from .utils import AccessDict, CastOnAssign
+from .widgets import NullWidget
 
 
 class BaseContactField(object):
@@ -283,10 +282,30 @@ class ContactField(BaseContactField, JSONField):
             kwargs['default'] = {}
         super(ContactField, self).__init__(*args, **kwargs)
 
+    def contribute_to_class(self, cls, name):
+        """
+        This ensures that the model that the field belongs to is able to set the
+        field's value through the `to_python` method
+        """
+        super(ContactField, self).contribute_to_class(cls, name)
+        setattr(cls, name, CastOnAssign(self))
+
+    def get_default(self):
+        default = super(ContactField, self).get_default()
+        if isinstance(default, dict):
+            return AccessDict.prepare(default)
+        return default
+
+    def from_db_value(self, value, expression, connection, context):
+        if isinstance(value, dict):
+            return AccessDict.prepare(value)
+        return value
+
     def to_python(self, value):
         value = super(ContactField, self).to_python(value)
         if isinstance(value, dict):
             return AccessDict.prepare(value)
+        return value
 
     def formfield(self, **kwargs):
         defaults = {
