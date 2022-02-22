@@ -22,7 +22,7 @@ def contact_cards(obj, concise=True):
         fields = [(field.name, field) for field in obj._meta.fields]
         value_getter = lambda field_name: getattr(obj, field_name)
     elif isinstance(obj, (forms.Form, forms.ModelForm)):
-        fields = [(name, field) for (name, field) in obj.fields.iteritems()]
+        fields = [(name, field) for (name, field) in obj.fields.items()]
         if obj.is_valid():
             value_getter = lambda field_name: obj.cleaned_data[field_name]
         else:

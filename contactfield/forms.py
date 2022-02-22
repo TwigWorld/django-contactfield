@@ -62,14 +62,8 @@ class ContactFieldFormMixin(object):
         for field_name, field in filter(lambda pair: isinstance(pair[1], ContactFormField), self.fields.items()):
             valid_groups_for_field = contact_group_subsets.get(field_name)
             valid_labels_for_field = contact_label_subsets.get(field_name)
-            valid_groups = filter(
-                lambda group: valid_groups_for_field is None or group in valid_groups_for_field,
-                field.get_valid_groups()
-            )
-            valid_labels = filter(
-                lambda label: valid_labels_for_field is None or label in valid_labels_for_field,
-                field.get_valid_labels()
-            )
+            valid_groups = [group for group in field.get_valid_groups() if valid_groups_for_field is None or group in valid_groups_for_field]
+            valid_labels = [label for label in field.get_valid_labels() if valid_labels_for_field is None or label in valid_labels_for_field]
 
             self._contact_pseudo_fields[field_name] = {}
             for valid_group in valid_groups:
@@ -81,8 +75,9 @@ class ContactFieldFormMixin(object):
                     if not 'required' in field_kwargs:
                         field_kwargs['required'] = False
                     if self[field_name].value() is not None:
-                        initial = self.fields[field_name].as_dict(self[field_name].value()).get(valid_group, {}).get(
-                            valid_label)
+                        initial = self.fields[field_name].as_dict(
+                            self[field_name].value()
+                        ).get(valid_group, {}).get(valid_label)
                     else:
                         initial = None
 
