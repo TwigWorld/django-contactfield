@@ -297,6 +297,7 @@ class ContactField(BaseContactField, JSONField):
         return default
 
     def from_db_value(self, value, expression, connection, context):
+        value = super(ContactField, self).from_db_value(value, expression, connection, context)
         if isinstance(value, dict):
             return AccessDict.prepare(value)
         return value
