@@ -139,20 +139,20 @@ class BaseContactField(object):
     }
 
     def __init__(
-            self,
-            valid_groups=None,
-            valid_labels=None,
-            additional_groups=None,
-            additional_labels=None,
-            exclude_groups=None,
-            exclude_labels=None,
-            label_format=None,
-            display_name=None,
-            update_group_display_names=None,
-            update_label_display_names=None,
-            concise=False,
-            *args,
-            **kwargs
+        self,
+        valid_groups=None,
+        valid_labels=None,
+        additional_groups=None,
+        additional_labels=None,
+        exclude_groups=None,
+        exclude_labels=None,
+        label_format=None,
+        display_name=None,
+        update_group_display_names=None,
+        update_label_display_names=None,
+        concise=False,
+        *args,
+        **kwargs
     ):
         # Groups and labels
 

@@ -37,12 +37,12 @@ class ContactFieldFormMixin(object):
     contact_field_kwargs = {}
 
     def __init__(
-            self,
-            contact_group_subsets=None,
-            contact_label_subsets=None,
-            contact_field_kwargs=None,
-            *args,
-            **kwargs
+        self,
+        contact_group_subsets=None,
+        contact_label_subsets=None,
+        contact_field_kwargs=None,
+        *args,
+        **kwargs
     ):
         super(ContactFieldFormMixin, self).__init__(*args, **kwargs)
 
