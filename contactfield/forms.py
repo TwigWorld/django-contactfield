@@ -4,7 +4,10 @@ from django import forms
 from django.forms.forms import pretty_name
 from django.utils.translation import ugettext_lazy as _
 
-from fields import ContactFormField
+from .fields import ContactFormField
+
+# python 3
+from builtins import str as unicode
 
 
 class ContactFieldFormMixin(object):
@@ -55,20 +58,12 @@ class ContactFieldFormMixin(object):
             contact_field_kwargs = self.contact_field_kwargs
 
         self._contact_pseudo_fields = {}
-        for field_name, field in filter(
-            lambda (field_name, field): isinstance(field, ContactFormField),
-            self.fields.iteritems()
-        ):
+        pseudo_fields = {}
+        for field_name, field in filter(lambda pair: isinstance(pair[1], ContactFormField), self.fields.items()):
             valid_groups_for_field = contact_group_subsets.get(field_name)
             valid_labels_for_field = contact_label_subsets.get(field_name)
-            valid_groups = filter(
-                lambda group: valid_groups_for_field is None or group in valid_groups_for_field,
-                field.get_valid_groups()
-            )
-            valid_labels = filter(
-                lambda label: valid_labels_for_field is None or label in valid_labels_for_field,
-                field.get_valid_labels()
-            )
+            valid_groups = [group for group in field.get_valid_groups() if valid_groups_for_field is None or group in valid_groups_for_field]
+            valid_labels = [label for label in field.get_valid_labels() if valid_labels_for_field is None or label in valid_labels_for_field]
 
             self._contact_pseudo_fields[field_name] = {}
             for valid_group in valid_groups:
@@ -80,7 +75,9 @@ class ContactFieldFormMixin(object):
                     if not 'required' in field_kwargs:
                         field_kwargs['required'] = False
                     if self[field_name].value() is not None:
-                        initial = self.fields[field_name].as_dict(self[field_name].value()).get(valid_group, {}).get(valid_label)
+                        initial = self.fields[field_name].as_dict(
+                            self[field_name].value()
+                        ).get(valid_group, {}).get(valid_label)
                     else:
                         initial = None
 
@@ -97,8 +94,10 @@ class ContactFieldFormMixin(object):
                         ),
                         **field_kwargs
                     )
-                    self.fields[pseudo_field_name] = pseudo_field
+
+                    pseudo_fields[pseudo_field_name] = pseudo_field
                     self._contact_pseudo_fields[field_name][pseudo_field_name] = pseudo_field
+        self.fields.update(pseudo_fields)
 
     def __getattribute__(self, name, *args, **kwargs):
         if name[:6] == 'clean_' and name[6:] in self._contact_pseudo_fields.keys():
@@ -113,7 +112,7 @@ class ContactFieldFormMixin(object):
         cleaned_data = self.fields[contact_field_name].as_dict(
             self[contact_field_name].value()
         )
-        for pseudo_field_name, field in self._contact_pseudo_fields[contact_field_name].iteritems():
+        for pseudo_field_name, field in self._contact_pseudo_fields[contact_field_name].items():
             pseudo_field_value = self.data.get(pseudo_field_name, None)
             if pseudo_field_value is not None:
                 if pseudo_field_value or not self.fields[contact_field_name].concise_mode():

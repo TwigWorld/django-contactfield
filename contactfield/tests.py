@@ -1,14 +1,14 @@
+from builtins import str as unicode  # python 3
 from unittest import TestCase
 
 from django import forms
 
-from fields import BaseContactField, ContactFormField, ContactField
-from forms import ContactFieldFormMixin
-from templatetags.contactfield_tags import contact_cards
+from .fields import BaseContactField, ContactFormField, ContactField
+from .forms import ContactFieldFormMixin
+from .templatetags.contactfield_tags import contact_cards
 
 
 class FormFieldTest(TestCase):
-
     field_class = ContactFormField
 
     def test_defaults(self):
@@ -132,7 +132,6 @@ class FormFieldTest(TestCase):
 
 
 class ModelFieldTest(FormFieldTest):
-
     field_class = ContactField
 
     def test_formfield(self):
@@ -183,7 +182,6 @@ class FormMixinTest(TestCase):
 
     def setUp(self):
         class ContactForm(ContactFieldFormMixin, forms.Form):
-
             contact_group_subsets = {
                 'contact_field': ['group_1', 'group_2']
             }
@@ -204,6 +202,7 @@ class FormMixinTest(TestCase):
                 valid_labels=['label_1', 'label_2', 'label_3'],
                 concise=True
             )
+
         self.form_class = ContactForm
 
     def test_pseudo_fields(self):
@@ -262,6 +261,7 @@ class TemplateTagsTest(TestCase):
                 valid_labels=['label_a', 'label_b', 'label_c'],
                 concise=False
             )
+
         self.form_class = ContactForm
 
     def test_contact_cards_unbound(self):

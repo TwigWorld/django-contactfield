@@ -1,4 +1,6 @@
 from collections import OrderedDict
+# py3
+from builtins import str as unicode
 
 from django import forms
 from django import template
@@ -7,7 +9,6 @@ from django.db import models
 from contactfield.fields import BaseContactField
 
 from django.forms.forms import pretty_name
-
 
 register = template.Library()
 
@@ -21,7 +22,7 @@ def contact_cards(obj, concise=True):
         fields = [(field.name, field) for field in obj._meta.fields]
         value_getter = lambda field_name: getattr(obj, field_name)
     elif isinstance(obj, (forms.Form, forms.ModelForm)):
-        fields = [(name, field) for (name, field) in obj.fields.iteritems()]
+        fields = [(name, field) for (name, field) in obj.fields.items()]
         if obj.is_valid():
             value_getter = lambda field_name: obj.cleaned_data[field_name]
         else:
@@ -30,10 +31,7 @@ def contact_cards(obj, concise=True):
         return {}
 
     contact_card_dict = {}
-    for field_name, field in filter(
-        lambda (field_name, field): isinstance(field, BaseContactField),
-        fields
-    ):
+    for field_name, field in filter(lambda pair: isinstance(pair[1], BaseContactField), fields):
         values = value_getter(field_name)
         contact_card_dict[field_name] = {}
         for group in field._valid_groups:

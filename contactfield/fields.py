@@ -1,4 +1,6 @@
 import json
+# python 3
+from builtins import str as unicode
 
 from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
 
@@ -221,8 +223,8 @@ class BaseContactField(object):
         }
         if self.concise_mode():
             concise_initial = {}
-            for group, labels in full_initial.iteritems():
-                for label, value in labels.iteritems():
+            for group, labels in full_initial.items():
+                for label, value in labels.items():
                     if value:
                         concise_initial.setdefault(group, {})[label] = value
             return concise_initial
@@ -295,6 +297,7 @@ class ContactField(BaseContactField, JSONField):
         return default
 
     def from_db_value(self, value, expression, connection, context):
+        value = super(ContactField, self).from_db_value(value, expression, connection, context)
         if isinstance(value, dict):
             return AccessDict.prepare(value)
         return value
