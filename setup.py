@@ -12,4 +12,10 @@ setup(
         "Django>=1.11, <2.0",
         "django-jsonfield==1.4.1"
     ],
+    extras_require={
+        "testing": [
+            "pytest",
+            "pytest-django",
+        ]
+    },
 )
