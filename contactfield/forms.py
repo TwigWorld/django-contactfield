@@ -83,14 +83,14 @@ class ContactFieldFormMixin(object):
                     pseudo_field = FieldClass(
                         initial=initial,
                         label=field.label_format.format(
-                            field=field.display_name,
-                            group=field.group_display_names.get(
+                            field=unicode(field.display_name),
+                            group=unicode(field.group_display_names.get(
                                 valid_group, pretty_name(valid_group)
-                            ),
-                            label=field.label_display_names.get(
+                            )),
+                            label=unicode(field.label_display_names.get(
                                 valid_label, pretty_name(valid_label)
                             ),
-                        ),
+                        )),
                         **field_kwargs
                     )
 

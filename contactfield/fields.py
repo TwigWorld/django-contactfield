@@ -9,6 +9,11 @@ from six import string_types
 from .utils import AccessDict, CastOnAssign
 from .widgets import NullWidget
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 
 class BaseContactField(object):
     """
@@ -176,7 +181,7 @@ class BaseContactField(object):
 
         # Label format and displayable names
         if label_format is not None:
-            self.label_format = label_format
+            self.label_format = unicode(label_format)
         if display_name is not None:
             self.display_name = display_name
 

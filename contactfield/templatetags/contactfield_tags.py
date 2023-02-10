@@ -39,13 +39,13 @@ def contact_cards(obj, concise=True):
             for label in field._valid_labels:
                 value = values.get(group, {}).get(label, '')
                 display_name = field.label_format.format(
-                    field=field.display_name,
-                    group=field.group_display_names.get(
+                    field=unicode(field.display_name),
+                    group=unicode(field.group_display_names.get(
                         group, pretty_name(group)
-                    ),
-                    label=field.label_display_names.get(
+                    )),
+                    label=unicode(field.label_display_names.get(
                         label, pretty_name(label)
-                    ),
+                    )),
                 )
                 if value or not concise:
                     contact_card_dict[field_name][group][label] = {
