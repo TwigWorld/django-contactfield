@@ -94,8 +94,8 @@ class ContactFieldFormMixin(object):
                             )),
                             label=unicode(field.label_display_names.get(
                                 valid_label, pretty_name(valid_label)
-                            ),
-                        )),
+                            )),
+                        ),
                         **field_kwargs
                     )
 
