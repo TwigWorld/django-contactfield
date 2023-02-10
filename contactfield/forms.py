@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from functools import partial
 
 from django import forms
@@ -5,9 +7,6 @@ from django.forms.forms import pretty_name
 from django.utils.translation import ugettext_lazy as _
 
 from .fields import ContactFormField
-
-# python 3
-from builtins import str as unicode
 
 
 class ContactFieldFormMixin(object):
@@ -84,13 +83,13 @@ class ContactFieldFormMixin(object):
                     pseudo_field = FieldClass(
                         initial=initial,
                         label=field.label_format.format(
-                            field=unicode(field.display_name),
-                            group=unicode(field.group_display_names.get(
+                            field=field.display_name,
+                            group=field.group_display_names.get(
                                 valid_group, pretty_name(valid_group)
-                            )),
-                            label=unicode(field.label_display_names.get(
+                            ),
+                            label=field.label_display_names.get(
                                 valid_label, pretty_name(valid_label)
-                            ))
+                            ),
                         ),
                         **field_kwargs
                     )
