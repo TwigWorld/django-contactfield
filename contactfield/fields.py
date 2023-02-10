@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 import json
 
 from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
-
 from jsonfield.fields import JSONFormField, JSONField
+from six import string_types
 
 from .utils import AccessDict, CastOnAssign
 from .widgets import NullWidget
@@ -176,7 +176,7 @@ class BaseContactField(object):
 
         # Label format and displayable names
         if label_format is not None:
-            self.label_format = str(label_format)
+            self.label_format = label_format
         if display_name is not None:
             self.display_name = display_name
 
@@ -236,7 +236,7 @@ class BaseContactField(object):
         formatting issues are encountered with the value, then a blank initial
         dictionary will be returned.
         """
-        if value and isinstance(value, str):
+        if value and isinstance(value, string_types):
             try:
                 value = json.loads(value)
             except json.JSONDecodeError:

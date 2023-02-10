@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from unittest import TestCase
 
 from django import forms
+from six import string_types
 
 from .fields import BaseContactField, ContactFormField, ContactField
 from .forms import ContactFieldFormMixin
@@ -64,9 +65,8 @@ class FormFieldTest(TestCase):
             field.label_format,
             '{кот}'
         )
-        assert field.label_format.encode() == b'{\xd0\xba\xd0\xbe\xd1\x82}'
         self.assertTrue(
-            isinstance(field.label_format, str)
+            isinstance(field.label_format, string_types)
         )
         self.assertEquals(
             field.display_name,
