@@ -7,9 +7,8 @@ setup(
     packages=['contactfield', 'contactfield.templatetags'],
     description='Customisable contact field for Django',
     long_description=open('README.md').read(),
-    python_requires='>=3.7.0',
     install_requires=[
-        "Django>=2.2, <3.0",
+        "django<3",
         "django-jsonfield"
     ],
     extras_require={
