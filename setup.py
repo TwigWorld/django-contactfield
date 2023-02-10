@@ -10,6 +10,6 @@ setup(
     python_requires='>=3.7.0',
     install_requires=[
         "Django>=2.2, <3.0",
-        "django-jsonfield>=1.4.1"
+        "django-jsonfield"
     ],
 )
