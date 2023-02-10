@@ -10,6 +10,11 @@ from contactfield.fields import BaseContactField
 
 from django.forms.forms import pretty_name
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 register = template.Library()
 
 

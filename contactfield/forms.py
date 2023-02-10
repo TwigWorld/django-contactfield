@@ -8,6 +8,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from .fields import ContactFormField
 
+try:
+    unicode
+except NameError:
+    unicode = str
+
 
 class ContactFieldFormMixin(object):
     """
