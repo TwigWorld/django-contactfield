@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from functools import partial
 
 from django import forms
@@ -6,8 +8,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from .fields import ContactFormField
 
-# python 3
-from builtins import str as unicode
+try:
+    unicode
+except NameError:
+    unicode = str
 
 
 class ContactFieldFormMixin(object):
@@ -90,7 +94,7 @@ class ContactFieldFormMixin(object):
                             )),
                             label=unicode(field.label_display_names.get(
                                 valid_label, pretty_name(valid_label)
-                            ))
+                            )),
                         ),
                         **field_kwargs
                     )

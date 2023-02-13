@@ -1,7 +1,10 @@
-from builtins import str as unicode  # python 3
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 from unittest import TestCase
 
 from django import forms
+from six import string_types
 
 from .fields import BaseContactField, ContactFormField, ContactField
 from .forms import ContactFieldFormMixin
@@ -46,7 +49,7 @@ class FormFieldTest(TestCase):
         field = self.field_class(
             valid_groups=['a', 'b'],
             valid_labels=['1', '2'],
-            label_format='{label}',
+            label_format='{кот}',
             display_name='Name',
             concise=True
         )
@@ -60,10 +63,10 @@ class FormFieldTest(TestCase):
         )
         self.assertEquals(
             field.label_format,
-            '{label}'
+            '{кот}'
         )
         self.assertTrue(
-            isinstance(field.label_format, unicode)
+            isinstance(field.label_format, string_types)
         )
         self.assertEquals(
             field.display_name,

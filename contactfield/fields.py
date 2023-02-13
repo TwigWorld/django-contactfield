@@ -1,13 +1,18 @@
+from __future__ import unicode_literals
+
 import json
-# python 3
-from builtins import str as unicode
 
 from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
-
 from jsonfield.fields import JSONFormField, JSONField
+from six import string_types
 
 from .utils import AccessDict, CastOnAssign
 from .widgets import NullWidget
+
+try:
+    unicode
+except NameError:
+    unicode = str
 
 
 class BaseContactField(object):
@@ -236,7 +241,7 @@ class BaseContactField(object):
         formatting issues are encountered with the value, then a blank initial
         dictionary will be returned.
         """
-        if value and isinstance(value, (unicode, str)):
+        if value and isinstance(value, string_types):
             try:
                 value = json.loads(value)
             except json.JSONDecodeError:
@@ -296,8 +301,8 @@ class ContactField(BaseContactField, JSONField):
             return AccessDict.prepare(default)
         return default
 
-    def from_db_value(self, value, expression, connection, context):
-        value = super(ContactField, self).from_db_value(value, expression, connection, context)
+    def from_db_value(self, value, expression, connection, *args, **kwargs):
+        value = super(ContactField, self).from_db_value(value, expression, connection, *args, **kwargs)
         if isinstance(value, dict):
             return AccessDict.prepare(value)
         return value

@@ -1,6 +1,6 @@
+from __future__ import unicode_literals
+
 from collections import OrderedDict
-# py3
-from builtins import str as unicode
 
 from django import forms
 from django import template
@@ -9,6 +9,11 @@ from django.db import models
 from contactfield.fields import BaseContactField
 
 from django.forms.forms import pretty_name
+
+try:
+    unicode
+except NameError:
+    unicode = str
 
 register = template.Library()
 
@@ -45,7 +50,7 @@ def contact_cards(obj, concise=True):
                     )),
                     label=unicode(field.label_display_names.get(
                         label, pretty_name(label)
-                    ))
+                    )),
                 )
                 if value or not concise:
                     contact_card_dict[field_name][group][label] = {
