@@ -12,17 +12,13 @@ class FormFieldTest(TestCase):
 
     def test_defaults(self):
         field = self.field_class()
-        self.assertEquals(field._valid_groups, list(BaseContactField.valid_groups))
-        self.assertEquals(field._valid_labels, list(BaseContactField.valid_labels))
-        self.assertEquals(field.label_format, BaseContactField.label_format)
-        self.assertEquals(field.display_name, BaseContactField.display_name)
-        self.assertEquals(
-            field.group_display_names, BaseContactField.group_display_names
-        )
-        self.assertEquals(
-            field.label_display_names, BaseContactField.label_display_names
-        )
-        self.assertEquals(field.concise_mode(), False)
+        assert field._valid_groups == list(BaseContactField.valid_groups)
+        assert field._valid_labels == list(BaseContactField.valid_labels)
+        assert field.label_format == BaseContactField.label_format
+        assert field.display_name == BaseContactField.display_name
+        assert field.group_display_names == BaseContactField.group_display_names
+        assert field.label_display_names == BaseContactField.label_display_names
+        assert field.concise_mode() == False
 
     def test_overrides(self):
         field = self.field_class(
@@ -32,12 +28,12 @@ class FormFieldTest(TestCase):
             display_name="Name",
             concise=True,
         )
-        self.assertEquals(field._valid_groups, ["a", "b"])
-        self.assertEquals(field._valid_labels, ["1", "2"])
-        self.assertEquals(field.label_format, "{кот}")
+        assert field._valid_groups == ["a", "b"]
+        assert field._valid_labels == ["1", "2"]
+        assert field.label_format == "{кот}"
         self.assertTrue(isinstance(field.label_format, str))
-        self.assertEquals(field.display_name, "Name")
-        self.assertEquals(field.concise_mode(), True)
+        assert field.display_name == "Name"
+        assert field.concise_mode() == True
 
     def test_updates(self):
         field = self.field_class(
@@ -51,27 +47,24 @@ class FormFieldTest(TestCase):
         new_valid_groups = list(BaseContactField.valid_groups)
         new_valid_groups.remove("billing")
         new_valid_groups.append("test")
-        self.assertNotEquals(field._valid_groups, BaseContactField.valid_groups)
-        self.assertEquals(set(field._valid_groups), set(new_valid_groups))
+        assert field._valid_groups != BaseContactField.valid_groups
+        assert set(field._valid_groups) == set(new_valid_groups)
         new_valid_labels = list(BaseContactField.valid_labels)
         new_valid_labels.remove("salutation")
         new_valid_labels.append("test")
-        self.assertNotEquals(field._valid_labels, BaseContactField.valid_labels)
-        self.assertEquals(set(field._valid_labels), set(new_valid_labels))
+        assert  field._valid_labels != BaseContactField.valid_labels
+        assert set(field._valid_labels) == set(new_valid_labels)
 
     def test_output(self):
         field = self.field_class(
             valid_groups=["test_group"], valid_labels=["test_label"]
         )
-        self.assertEquals(field.as_dict(None), {"test_group": {"test_label": ""}})
+        assert field.as_dict(None) == {"test_group": {"test_label": ""}}
         field._concise = True
-        self.assertEquals(field.as_dict(None), {})
-        self.assertEquals(
-            field.as_dict(
-                {"test_group": {"test_label": "Success", "no_such_label": "Failure"}}
-            ),
-            {"test_group": {"test_label": "Success"}},
-        )
+        assert field.as_dict(None) == {}
+        assert  field.as_dict({"test_group": {"test_label": "Success", "no_such_label": "Failure"}}
+            ) == {"test_group": {"test_label": "Success"}}
+        
 
 
 class ModelFieldTest(FormFieldTest):
@@ -87,14 +80,14 @@ class ModelFieldTest(FormFieldTest):
         )
         form_field = field.formfield()
 
-        self.assertEquals(field.default, form_field.initial)
-        self.assertEquals(set(field.valid_groups), set(form_field.valid_groups))
-        self.assertEquals(set(field.valid_labels), set(form_field.valid_labels))
-        self.assertEquals(field.label_format, form_field.label_format)
-        self.assertEquals(field.display_name, form_field.display_name)
-        self.assertEquals(field.group_display_names, form_field.group_display_names)
-        self.assertEquals(field.label_display_names, form_field.label_display_names)
-        self.assertEquals(field._concise, form_field._concise)
+        assert field.default == form_field.initial
+        assert set(field.valid_groups) == set(form_field.valid_groups)
+        assert set(field.valid_labels)== set(form_field.valid_labels)
+        assert field.label_format  == form_field.label_format
+        assert field.display_name == form_field.display_name
+        assert field.group_display_names == form_field.group_display_names
+        assert field.label_display_names == form_field.label_display_names
+        assert field._concise == form_field._concise
 
 
 class FormMixinTest(TestCase):
@@ -122,8 +115,7 @@ class FormMixinTest(TestCase):
 
     def test_pseudo_fields(self):
         form = self.form_class()
-        self.assertEquals(
-            set(
+        assert set(
                 [
                     "contact_field",
                     "contact_field__group_1__label_1",
@@ -131,15 +123,13 @@ class FormMixinTest(TestCase):
                     "contact_field__group_2__label_1",
                     "contact_field__group_2__label_2",
                 ]
-            ),
-            set(form.fields.keys()),
-        )
+                ) == set(form.fields.keys())
+        
 
     def test_field_kwargs(self):
         form = self.form_class()
-        self.assertEquals(
-            form.fields["contact_field__group_1__label_1"].__class__, forms.IntegerField
-        )
+        assert form.fields["contact_field__group_1__label_1"].__class__ == forms.IntegerField
+        
         self.assertTrue(
             form.fields["contact_field__group_1__label_1"].required,
         )
@@ -149,11 +139,10 @@ class FormMixinTest(TestCase):
 
     def test_form_field_updated(self):
         form = self.form_class(data={"contact_field__group_1__label_1": "1"})
-        self.assertEquals(form["contact_field"].value(), {})
+        assert form["contact_field"].value() == {}
         self.assertTrue(form.is_valid())
-        self.assertEquals(
-            form.cleaned_data["contact_field"], {"group_1": {"label_1": "1"}}
-        )
+        assert form.cleaned_data["contact_field"] == {"group_1": {"label_1": "1"}}
+        
 
 
 class TemplateTagsTest(TestCase):
@@ -178,15 +167,11 @@ class TemplateTagsTest(TestCase):
         form = self.form_class(
             initial={"contact_field_1": {"group_1": {"label_1": "111"}}}
         )
-        self.assertEquals(
-            contact_cards(form)["contact_field_1"]["group_1"]["label_1"][
-                "display_name"
-            ],
-            "Group 1: LABEL ONE",
-        )
-        self.assertEquals(
-            contact_cards(form)["contact_field_1"]["group_1"]["label_1"]["value"], "111"
-        )
+        assert contact_cards(form)["contact_field_1"]["group_1"]["label_1"]
+        ["display_name"] =="Group 1: LABEL ONE"
+        
+        assert contact_cards(form)["contact_field_1"]["group_1"]["label_1"]["value"] == "111"
+        
 
         with self.assertRaises(KeyError):
             contact_cards(form)["contact_field_1"]["group_3"]["label_1"]
@@ -194,12 +179,8 @@ class TemplateTagsTest(TestCase):
         with self.assertRaises(KeyError):
             contact_cards(form)["contact_field_2"]["group_c"]["label_c"]
 
-        self.assertEquals(
-            contact_cards(form, False)["contact_field_2"]["group_c"]["label_c"][
-                "value"
-            ],
-            "",
-        )
+        assert contact_cards(form, False)["contact_field_2"]["group_c"]["label_c"]["value"] == ""
+        
 
     def test_contact_cards_bound(self):
         form = self.form_class(
@@ -211,11 +192,9 @@ class TemplateTagsTest(TestCase):
             }
         )
 
-        self.assertEquals(
-            contact_cards(form)["contact_field_1"]["group_1"]["label_1"]["value"], "111"
-        )
-        self.assertEquals(
-            contact_cards(form)["contact_field_2"]["group_a"]["label_a"]["value"], "2aa"
-        )
+        assert contact_cards(form)["contact_field_1"]["group_1"]["label_1"]["value"] == "111"
+        
+        assert contact_cards(form)["contact_field_2"]["group_a"]["label_a"]["value"] == "2aa"
+        
         with self.assertRaises(KeyError):
             contact_cards(form)["contact_field_1"]["group_3"]["label_1"]
