@@ -1,18 +1,11 @@
-from __future__ import unicode_literals
-
 import json
 
-from django.utils.translation import pgettext_lazy as _p, ugettext_lazy as _
+from django.utils.translation import pgettext_lazy as _p, gettext_lazy as _
 from jsonfield.fields import JSONFormField, JSONField
-from six import string_types
+
 
 from .utils import AccessDict, CastOnAssign
 from .widgets import NullWidget
-
-try:
-    unicode
-except NameError:
-    unicode = str
 
 
 class BaseContactField(object):
@@ -36,111 +29,111 @@ class BaseContactField(object):
     """
 
     valid_groups = (
-        'business',
-        'billing',
-        'home',
-        'personal',
-        'school',
-        'shipping',
-        'work'
+        "business",
+        "billing",
+        "home",
+        "personal",
+        "school",
+        "shipping",
+        "work",
     )
 
     valid_labels = (
         # Name
-        'salutation',
-        'full_name',
-        'first_name',
-        'middle_names',
-        'last_name',
-        'maiden_name',
-        'company_name',
-        'job_title',
+        "salutation",
+        "full_name",
+        "first_name",
+        "middle_names",
+        "last_name",
+        "maiden_name",
+        "company_name",
+        "job_title",
         # Telephone
-        'phone',
-        'mobile',
-        'fax',
-        'do_not_call',
+        "phone",
+        "mobile",
+        "fax",
+        "do_not_call",
         # Email
-        'email',
-        'do_not_email',
+        "email",
+        "do_not_email",
         # Website
-        'website',
+        "website",
         # Address
-        'address_1',
-        'address_2',
-        'address_3',
-        'address_4',
-        'address_5',
-        'address_6',
-        'address_7',
-        'address_8',
-        'address_9',
-        'building',
-        'street_address',
-        'city',
-        'region',
-        'state',
-        'country',
-        'state',
-        'postal_code',
+        "address_1",
+        "address_2",
+        "address_3",
+        "address_4",
+        "address_5",
+        "address_6",
+        "address_7",
+        "address_8",
+        "address_9",
+        "building",
+        "street_address",
+        "city",
+        "region",
+        "state",
+        "country",
+        "state",
+        "postal_code",
         # Other
-        'notes'
+        "notes",
     )
 
-    label_format = u'{group}: {label}'
+    label_format = "{group}: {label}"
 
-    display_name = _('Contact information')
+    display_name = _("Contact information")
 
     group_display_names = {
-        'business': _('Business'),
-        'billing': _('Billing'),
-        'home': _p('Home user', 'Home'),
-        'personal': _('Personal'),
-        'school': _('School'),
-        'shipping': _('Shipping'),
-        'work': _('Work')
+        "business": _("Business"),
+        "billing": _("Billing"),
+        "home": _p("Home user", "Home"),
+        "personal": _("Personal"),
+        "school": _("School"),
+        "shipping": _("Shipping"),
+        "work": _("Work"),
     }
 
     label_display_names = {
         # Name
-        'salutation': _('Salutation'),
-        'full_name': _('Full name'),
-        'first_name': _('First name'),
-        'middle_names': _('Middle names'),
-        'last_name': _('Last name'),
-        'maiden_name': _('Maiden name'),
-        'company_name': _('Company name'),
-        'job_title': _('Job title'),
+        "salutation": _("Salutation"),
+        "full_name": _("Full name"),
+        "first_name": _("First name"),
+        "middle_names": _("Middle names"),
+        "last_name": _("Last name"),
+        "maiden_name": _("Maiden name"),
+        "company_name": _("Company name"),
+        "job_title": _("Job title"),
         # Telephone
-        'phone': _('Phone'),
-        'mobile': _('Mobile'),
-        'fax': _('Fax'),
-        'do_not_call': _('Do not call'),
+        "phone": _("Phone"),
+        "mobile": _("Mobile"),
+        "fax": _("Fax"),
+        "do_not_call": _("Do not call"),
         # Email
-        'email': _('Email'),
-        'do_not_email': _('Do not Email'),
+        "email": _("Email"),
+        "do_not_email": _("Do not Email"),
         # Website
-        'website': _('Website'),
+        "website": _("Website"),
         # Address
-        'address_1': _('Address (line 1)'),
-        'address_2': _('Address (line 2)'),
-        'address_3': _('Address (line 3)'),
-        'address_4': _('Address (line 4)'),
-        'address_5': _('Address (line 5)'),
-        'address_6': _('Address (line 6)'),
-        'address_7': _('Address (line 7)'),
-        'address_8': _('Address (line 8)'),
-        'address_9': _('Address (line 9)'),
-        'building': _('Building'),
-        'street_address': _('Street address'),
-        'city': _('City'),
-        'region': _('Region'),
-        'state': _('State'),
-        'country': _('Country'),
-        'state': _('State'),
-        'postal_code': _('Postal code'),
+        "address_1": _("Address (line 1)"),
+        "address_2": _("Address (line 2)"),
+        "address_3": _("Address (line 3)"),
+        "address_4": _("Address (line 4)"),
+        "address_5": _("Address (line 5)"),
+        "address_6": _("Address (line 6)"),
+        "address_7": _("Address (line 7)"),
+        "address_8": _("Address (line 8)"),
+        "address_9": _("Address (line 9)"),
+        "building": _("Building"),
+        "street_address": _("Street address"),
+        "city": _("City"),
+        "region": _("Region"),
+        "state": _("State"),
+        "country": _("Country"),
+        "state": _("State"),
+        "postal_code": _("Postal code"),
         # Other
-        'notes': _('Notes')
+        "notes": _("Notes"),
     }
 
     def __init__(
@@ -166,7 +159,9 @@ class BaseContactField(object):
         else:
             self._valid_groups = list(self.valid_groups)
             if additional_groups is not None:
-                self._valid_groups = list(set(self._valid_groups) | set(additional_groups))
+                self._valid_groups = list(
+                    set(self._valid_groups) | set(additional_groups)
+                )
             if exclude_groups is not None:
                 self._valid_groups = list(set(self._valid_groups) - set(exclude_groups))
 
@@ -175,13 +170,15 @@ class BaseContactField(object):
         else:
             self._valid_labels = list(self.valid_labels)
             if additional_labels is not None:
-                self._valid_labels = list(set(self._valid_labels) | set(additional_labels))
+                self._valid_labels = list(
+                    set(self._valid_labels) | set(additional_labels)
+                )
             if exclude_labels is not None:
                 self._valid_labels = list(set(self._valid_labels) - set(exclude_labels))
 
         # Label format and displayable names
         if label_format is not None:
-            self.label_format = unicode(label_format)
+            self.label_format = str(label_format)
         if display_name is not None:
             self.display_name = display_name
 
@@ -203,10 +200,10 @@ class BaseContactField(object):
 
         # Initial values
 
-        if 'default' in kwargs:
-            kwargs['default'] = self.as_dict(kwargs['default'])
-        if 'initial' in kwargs:
-            kwargs['initial'] = self.as_dict(kwargs['initial'])
+        if "default" in kwargs:
+            kwargs["default"] = self.as_dict(kwargs["default"])
+        if "initial" in kwargs:
+            kwargs["initial"] = self.as_dict(kwargs["initial"])
 
         super(BaseContactField, self).__init__(*args, **kwargs)
         self.required = False
@@ -221,7 +218,11 @@ class BaseContactField(object):
             initial = {}
         full_initial = {
             group: {
-                label: '' if not initial.get(group, {}).get(label) else initial[group][label]
+                label: (
+                    ""
+                    if not initial.get(group, {}).get(label)
+                    else initial[group][label]
+                )
                 for label in self.get_valid_labels()
             }
             for group in self.get_valid_groups()
@@ -241,7 +242,7 @@ class BaseContactField(object):
         formatting issues are encountered with the value, then a blank initial
         dictionary will be returned.
         """
-        if value and isinstance(value, string_types):
+        if value and isinstance(value, str):
             try:
                 value = json.loads(value)
             except json.JSONDecodeError:
@@ -265,10 +266,10 @@ class BaseContactField(object):
 class ContactFormField(BaseContactField, JSONFormField):
 
     def __init__(self, *args, **kwargs):
-        if not 'initial' in kwargs:
-            kwargs['initial'] = {}
+        if not "initial" in kwargs:
+            kwargs["initial"] = {}
         # Always override widget
-        kwargs['widget'] = NullWidget
+        kwargs["widget"] = NullWidget
         super(ContactFormField, self).__init__(*args, **kwargs)
 
     def bound_data(self, data, initial):
@@ -283,8 +284,8 @@ class ContactFormField(BaseContactField, JSONFormField):
 class ContactField(BaseContactField, JSONField):
 
     def __init__(self, *args, **kwargs):
-        if not 'default' in kwargs:
-            kwargs['default'] = {}
+        if not "default" in kwargs:
+            kwargs["default"] = {}
         super(ContactField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
@@ -302,7 +303,9 @@ class ContactField(BaseContactField, JSONField):
         return default
 
     def from_db_value(self, value, expression, connection, *args, **kwargs):
-        value = super(ContactField, self).from_db_value(value, expression, connection, *args, **kwargs)
+        value = super(ContactField, self).from_db_value(
+            value, expression, connection, *args, **kwargs
+        )
         if isinstance(value, dict):
             return AccessDict.prepare(value)
         return value
@@ -315,14 +318,14 @@ class ContactField(BaseContactField, JSONField):
 
     def formfield(self, **kwargs):
         defaults = {
-            'form_class': ContactFormField,
-            'valid_groups': self.get_valid_groups(),
-            'valid_labels': self.get_valid_labels(),
-            'label_format': self.label_format,
-            'display_name': self.display_name,
-            'update_group_display_names': self.group_display_names,
-            'update_label_display_names': self.label_display_names,
-            'concise': self._concise,
+            "form_class": ContactFormField,
+            "valid_groups": self.get_valid_groups(),
+            "valid_labels": self.get_valid_labels(),
+            "label_format": self.label_format,
+            "display_name": self.display_name,
+            "update_group_display_names": self.group_display_names,
+            "update_label_display_names": self.label_display_names,
+            "concise": self._concise,
         }
         defaults.update(kwargs)
         return super(ContactField, self).formfield(**defaults)
