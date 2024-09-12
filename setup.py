@@ -8,11 +8,5 @@ setup(
     description="Customisable contact field for Django",
     long_description=open("README.md").read(),
     install_requires=["django<3", "django-jsonfield"],
-    extras_require={
-        "testing": [
-            "pytest",
-            "pytest-django",
-            "black"
-        ]
-    },
+    extras_require={"testing": ["pytest", "pytest-django", "black",]},
 )

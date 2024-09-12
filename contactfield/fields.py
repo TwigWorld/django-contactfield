@@ -205,7 +205,8 @@ class BaseContactField(object):
         if "initial" in kwargs:
             kwargs["initial"] = self.as_dict(kwargs["initial"])
 
-        super(BaseContactField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+
         self.required = False
 
     def _initial_dict(self, initial=None):

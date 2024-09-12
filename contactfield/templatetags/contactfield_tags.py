@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from django import forms
 from django import template
 from django.db import models
@@ -35,17 +33,13 @@ def contact_cards(obj, concise=True):
         values = value_getter(field_name)
         contact_card_dict[field_name] = {}
         for group in field._valid_groups:
-            contact_card_dict[field_name][group] = OrderedDict()
+            contact_card_dict[field_name][group] = {}
             for label in field._valid_labels:
                 value = values.get(group, {}).get(label, "")
                 display_name = field.label_format.format(
                     field=str(field.display_name),
-                    group=str(
-                        field.group_display_names.get(group, pretty_name(group))
-                    ),
-                    label=str(
-                        field.label_display_names.get(label, pretty_name(label))
-                    ),
+                    group=str(field.group_display_names.get(group, pretty_name(group))),
+                    label=str(field.label_display_names.get(label, pretty_name(label))),
                 )
                 if value or not concise:
                     contact_card_dict[field_name][group][label] = {

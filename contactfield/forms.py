@@ -7,7 +7,6 @@ from django.utils.translation import gettext_lazy as _
 from .fields import ContactFormField
 
 
-
 class ContactFieldFormMixin(object):
     """
     Provides the necessary form logic for generating pseudo fields for a
@@ -41,7 +40,7 @@ class ContactFieldFormMixin(object):
         contact_label_subsets=None,
         contact_field_kwargs=None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         super(ContactFieldFormMixin, self).__init__(*args, **kwargs)
 
@@ -77,11 +76,7 @@ class ContactFieldFormMixin(object):
             self._contact_pseudo_fields[field_name] = {}
             for valid_group in valid_groups:
                 for valid_label in valid_labels:
-                    pseudo_field_name = "%s__%s__%s" % (
-                        field_name,
-                        valid_group,
-                        valid_label,
-                    )
+                    pseudo_field_name = f"{field_name}__{valid_group}__{valid_label}"
                     field_kwargs = {}
                     field_kwargs.update(contact_field_kwargs.get(pseudo_field_name, {}))
                     FieldClass = field_kwargs.pop("field", forms.CharField)
@@ -112,7 +107,7 @@ class ContactFieldFormMixin(object):
                                 )
                             ),
                         ),
-                        **field_kwargs
+                        **field_kwargs,
                     )
 
                     pseudo_fields[pseudo_field_name] = pseudo_field
