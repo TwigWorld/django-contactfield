@@ -42,7 +42,7 @@ class ContactFieldFormMixin(object):
         *args,
         **kwargs,
     ):
-        super(ContactFieldFormMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Find all the contact fields, and create dynamic fields based on
         # valid_groups and valid_labels, filtered by relevant subsets
@@ -119,9 +119,7 @@ class ContactFieldFormMixin(object):
     def __getattribute__(self, name, *args, **kwargs):
         if name[:6] == "clean_" and name[6:] in self._contact_pseudo_fields.keys():
             return partial(self._clean_CONTACTFIELD, name[6:])
-        return super(ContactFieldFormMixin, self).__getattribute__(
-            name, *args, **kwargs
-        )
+        return super().__getattribute__(name, *args, **kwargs)
 
     def _clean_CONTACTFIELD(self, contact_field_name):
         """
