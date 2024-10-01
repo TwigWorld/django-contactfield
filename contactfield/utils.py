@@ -4,6 +4,7 @@ class CastOnAssign(object):
     field. This behaviour used to be provided by the
     `django.db.models.subclassing.Creator` class that was removed in Django 1.10
     """
+
     def __init__(self, field):
         self.field = field
 
